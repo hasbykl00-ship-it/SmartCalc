@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER DUCT SIZER - Realtime HVAC Duct Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Remove spinner on number inputs */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Print Optimization Styling */
+        @media print {
+            @page {
+                size: landscape;
+                margin: 6mm;
+            }
+            body {
+                background: white !important;
+                color: #0f172a !important;
+                font-size: 8pt !important;
+                padding-bottom: 0 !important;
+            }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+            
+            main {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin-top: 0 !important;
+                padding: 0 !important;
+            }
+            
+            section {
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 6px !important;
+                padding: 6px 10px !important;
+                margin-bottom: 8px !important;
+                page-break-inside: avoid;
+            }
+
+            .table-container {
+                border: 1px solid #94a3b8 !important;
+                border-radius: 4px !important;
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                font-size: 7.5pt !important;
+            }
+
+            thead {
+                background-color: #0f172a !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            th, td {
+                padding: 3px 4px !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            input, select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                color: inherit !important;
+                width: 100% !important;
+            }
+            
+            select {
+                background-image: none !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+
+        .print-only { display: none; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+    <header class="bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900 text-white shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-brand-500/20 border border-brand-400/30 rounded-xl text-brand-400">
+                    <i class="fa-solid fa-wind text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight"> MASTER DUCT SIZER </h1>
+                    <p class="text-xs text-slate-300">Sizing Ducting Otomatis Sesuai Standar ASHRAE & SMACNA (Termasuk Evaluasi Panjang & Velocity Akhir)</p>
+                </div>
+            </div>
+            
+            <!-- System Controls -->
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-lg p-1 flex items-center text-xs">
+                    <button id="unitMetricBtn" onclick="setUnitSystem('metric')" class="px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-sm">
+                        Metric (m³/h, m/s, m, Pa)
+                    </button>
+                    <button id="unitImperialBtn" onclick="setUnitSystem('imperial')" class="px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white transition-all">
+                        Imperial (CFM, FPM, ft, in.wg)
+                    </button>
+                </div>
+                
+                <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-print"></i> Cetak Laporan PDF
+                </button>
+                
+                <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-file-excel"></i> Export CSV
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+
+        <!-- Card 1: Header Meta Info & Integrated Dashboard Summary -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-brand-600"></i> Informasi Project & Laporan Disatukan
+                </h2>
+                <span class="text-xs bg-brand-50 text-brand-700 border border-brand-200 font-semibold px-2.5 py-0.5 rounded-full">
+                    Standar ASHRAE 2024 / SMACNA
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">
+                        <i class="fa-solid fa-user text-slate-400 mr-1"></i> Nama Penyusun (Prepared By)
+                    </label>
+                    <input type="text" id="authorName" value="Dadan Hamdalah Kahfi"
+                        placeholder="Masukkan nama penyusun..." 
+                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">
+                        <i class="fa-solid fa-calendar-days text-slate-400 mr-1"></i> Tanggal (Date)
+                    </label>
+                    <input type="date" id="docDate"
+                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                </div>
+
+                <div class="lg:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">
+                        <i class="fa-solid fa-building text-slate-400 mr-1"></i> Nama Project (Project Title)
+                    </label>
+                    <input type="text" id="projectName" value="Sistem Tata Udara HVAC - Ducting Main & Branch"
+                        placeholder="Masukkan nama project..." 
+                        class="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all">
+                </div>
+            </div>
+
+            <!-- Integrated Unified Summary Bar -->
+            <div class="bg-slate-900 text-white rounded-xl p-4 grid grid-cols-2 md:grid-cols-5 gap-4 border border-slate-800 no-print">
+                <div class="border-r border-slate-800 pr-2">
+                    <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Total Section</span>
+                    <span id="statTotalSections" class="text-lg font-extrabold text-white">0</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Segmen Ducting</span>
+                </div>
+                <div class="border-r border-slate-800 pr-2">
+                    <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Total Airflow</span>
+                    <span id="statTotalAirflow" class="text-lg font-extrabold text-brand-400">0 m³/h</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Kapasitas Udara</span>
+                </div>
+                <div class="border-r border-slate-800 pr-2">
+                    <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Total Panjang</span>
+                    <span id="statTotalLength" class="text-lg font-extrabold text-emerald-400">0 m</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Panjang Duct Keseluruhan</span>
+                </div>
+                <div class="border-r border-slate-800 pr-2">
+                    <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Total Pressure Drop</span>
+                    <span id="statTotalPressureDrop" class="text-lg font-extrabold text-amber-400">0 Pa</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Kumulatif Loss Gesekan</span>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block">Max Velocity</span>
+                    <span id="statMaxVelocity" class="text-lg font-extrabold text-sky-300">0 m/s</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Kecepatan Tergiat</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card 2: Main Calculation Table -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-table text-brand-600"></i> Tabel Sizing & Analisis Gesekan Ducting
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Ukuran ducting dibulatkan otomatis ke <strong>Standar Industri HVAC (Rectangular kelipatan 25/50mm & Round Standard)</strong>. 
+                        <strong>Input nilai Velocity secara manual pada kolom Desain Velocity.</strong>
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="addRow()" class="px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-plus"></i> Tambah Baris
+                    </button>
+                    <button onclick="loadSampleData()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-medium transition-all">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Data Contoh
+                    </button>
+                    <button onclick="clearAllRows()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-medium transition-all">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="table-container overflow-x-auto rounded-lg border border-slate-200">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-800 text-white font-semibold uppercase tracking-wider text-[10px]">
+                        <tr>
+                            <th class="p-2.5 w-[3%] text-center">No</th>
+                            <th class="p-2.5 w-[11%]">Tag / Kode</th>
+                            <th class="p-2.5 w-[13%]">Peruntukan Ducting</th>
+                            <th class="p-2.5 w-[9%] text-right">Airflow (<span class="unit-q">m³/h</span>)</th>
+                            <th class="p-2.5 w-[10%] text-right bg-brand-950 text-brand-200">Desain Velocity (<span class="unit-v">m/s</span>)</th>
+                            <th class="p-2.5 w-[7%] text-right">Head Loss (<span class="unit-hl">Pa/m</span>)</th>
+                            <th class="p-2.5 w-[7%] text-right bg-amber-950 text-amber-200">Panjang (<span class="unit-len">m</span>)</th>
+                            <th class="p-2.5 w-[13%] text-center bg-brand-900 text-brand-100 border-x border-brand-800">
+                                Rect Duct Standar (W x H)
+                            </th>
+                            <th class="p-2.5 w-[9%] text-center bg-teal-900 text-teal-100">
+                                Round (Ø Dia)
+                            </th>
+                            <th class="p-2.5 w-[8%] text-right">Velocity Awal (<span class="unit-v">m/s</span>)</th>
+                            <th class="p-2.5 w-[8%] text-right bg-emerald-950 text-emerald-200" title="Kecepatan udara di ujung ducting setelah memperhitungkan rugi gesek sepanjang duct">
+                                Velocity Akhir (<span class="unit-v">m/s</span>)
+                            </th>
+                            <th class="p-2.5 w-[4%] text-center">Aspect</th>
+                            <th class="p-2.5 w-[5%] text-center">Status</th>
+                            <th class="p-2.5 w-[4%] text-center no-print">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ductTableBody" class="divide-y divide-slate-200 bg-white">
+                        <!-- Dynamic Rows Generated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Visualizer -->
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Live Visual Cross-Section Viewer (Hidden on print via 'no-print') -->
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 no-print">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-vector-square text-brand-600"></i> Visualisasi Penampang Ducting Standar & Profil Gesekan
+                    </h3>
+                    <div class="text-xs text-slate-500">
+                        Klik baris pada tabel untuk melihat detail penampang
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <!-- SVG Display Box -->
+                    <div class="bg-slate-900 rounded-xl p-4 flex flex-col items-center justify-center min-h-[200px] border border-slate-800 relative overflow-hidden">
+                        <div id="visualizerTag" class="absolute top-2 left-3 text-[10px] font-mono text-brand-400 bg-brand-950 px-2 py-0.5 rounded border border-brand-800/50">
+                            TAG: -
+                        </div>
+                        <svg id="ductSvg" class="w-full h-44 max-w-[280px]" viewBox="0 0 300 200">
+                            <!-- Dynamic SVG shapes via JS -->
+                        </svg>
+                    </div>
+
+                    <!-- Dimension Breakdown Details -->
+                    <div class="space-y-2 text-xs">
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Ducting Kotak Standar (Rectangular W x H)</span>
+                            <div class="flex justify-between items-baseline mt-1">
+                                <span id="visRectSize" class="text-base font-extrabold text-brand-700">-</span>
+                                <span id="visAspect" class="text-xs font-semibold text-slate-600">Aspect Ratio: -</span>
+                            </div>
+                            <p id="visGauge" class="text-[11px] text-slate-600 font-medium mt-1">Rekomendasi Tebal Seng BJLS: -</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <span class="text-slate-500 block text-[10px] uppercase tracking-wider font-semibold">Ducting Bulat (Round Duct Standar)</span>
+                            <div class="flex justify-between items-baseline mt-1">
+                                <span id="visRoundSize" class="text-base font-extrabold text-teal-700">-</span>
+                                <span id="visEqDia" class="text-xs font-semibold text-slate-600">Equiv Dia: -</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Efisiensi gesekan tinggi & aliran udara optimal.</p>
+                        </div>
+
+                        <!-- Length Impact Card -->
+                        <div class="p-3 bg-amber-50/60 rounded-lg border border-amber-200">
+                            <span class="text-amber-800 block text-[10px] uppercase tracking-wider font-bold">Dampak Panjang Ducting</span>
+                            <div class="flex justify-between items-center text-xs mt-1">
+                                <span class="text-slate-600">Total Loss Gesekan ($\Delta P$):</span>
+                                <span id="visTotalLoss" class="font-bold text-amber-900">-</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs mt-0.5">
+                                <span class="text-slate-600">Penurunan Velocity:</span>
+                                <span id="visVelDrop" class="font-bold text-slate-800">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Footnote & Copyright Notice -->
+        <footer class="text-center text-xs text-slate-500 py-4 border-t border-slate-200 mt-8 space-y-1">
+            <p>MASTER DUCT SIZER — Otomatisasi Ukuran Penampang Ducting HVAC Menggunakan Persamaan Huebscher (ASHRAE Fundamentals) & Kriteria Standar SMACNA.</p>
+            <p class="font-semibold text-slate-600">&copy; DADAN HAMDALAH KAHFI 2026. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // System State
+        let currentUnit = 'metric'; // 'metric' or 'imperial'
+        let selectedRowIndex = 0;
+
+        // Duct Application Label Options
+        const applicationPresets = {
+            'SA_MAIN': { name: 'Supply Air Main' },
+            'SA_BRANCH': { name: 'Supply Air Branch' },
+            'RA_MAIN': { name: 'Return Air Main' },
+            'RA_BRANCH': { name: 'Return Air Branch' },
+            'FA': { name: 'Fresh Air Duct' },
+            'TE': { name: 'Toilet Exhaust' },
+            'KE': { name: 'Kitchen Exhaust' },
+            'SE': { name: 'Smoke Extraction' },
+            'CUSTOM': { name: 'Custom / Lainnya' }
+        };
+
+        // Standard Duct Sizes (Standard increments per SMACNA / ASHRAE)
+        const STANDARD_RECT_SIZES_METRIC = [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1800, 2000, 2200, 2400];
+        const STANDARD_RECT_SIZES_IMPERIAL = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 88, 96];
+
+        // Initial Data Set (Including Manual Velocity & Duct Length)
+        let ductData = [
+            { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', airflow: 3500, designVel: 6.5, headLoss: 0.8, length: 25 },
+            { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', airflow: 1200, designVel: 4.5, headLoss: 0.8, length: 15 },
+            { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', airflow: 3000, designVel: 5.5, headLoss: 0.8, length: 20 },
+            { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', airflow: 2500, designVel: 10.0, headLoss: 1.2, length: 30 },
+            { id: 5, tag: 'FA-FRESH-01', app: 'FA', airflow: 1800, designVel: 5.0, headLoss: 0.8, length: 12 }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('docDate');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        });
+
+        function setUnitSystem(unit) {
+            if (currentUnit === unit) return;
+            
+            if (unit === 'imperial') {
+                ductData = ductData.map(row => ({
+                    ...row,
+                    airflow: Math.round(row.airflow * 0.588578), // m3/h to CFM
+                    designVel: Math.round(row.designVel * 196.85), // m/s to FPM
+                    headLoss: parseFloat((row.headLoss * 0.0040186).toFixed(3)), // Pa/m to in.wg/100ft
+                    length: Math.round(row.length * 3.28084) // m to ft
+                }));
+                document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white transition-all';
+                document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-sm';
+            } else {
+                ductData = ductData.map(row => ({
+                    ...row,
+                    airflow: Math.round(row.airflow / 0.588578), // CFM to m3/h
+                    designVel: parseFloat((row.designVel / 196.85).toFixed(1)), // FPM to m/s
+                    headLoss: parseFloat((row.headLoss / 0.0040186).toFixed(1)), // in.wg/100ft to Pa/m
+                    length: Math.round(row.length / 3.28084) // ft to m
+                }));
+                document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-medium text-slate-300 hover:text-white transition-all';
+                document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-sm';
+            }
+
+            currentUnit = unit;
+            updateUnitLabels();
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function updateUnitLabels() {
+            const qLabels = document.querySelectorAll('.unit-q');
+            const vLabels = document.querySelectorAll('.unit-v');
+            const hlLabels = document.querySelectorAll('.unit-hl');
+            const lenLabels = document.querySelectorAll('.unit-len');
+
+            qLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm³/h' : 'CFM');
+            vLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm/s' : 'FPM');
+            hlLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft');
+            lenLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm' : 'ft');
+        }
+
+        // Snap to nearest standard dimension
+        function roundToStandardSize(val, isMetric) {
+            const standards = isMetric ? STANDARD_RECT_SIZES_METRIC : STANDARD_RECT_SIZES_IMPERIAL;
+            for (let size of standards) {
+                if (size >= val) return size;
+            }
+            return standards[standards.length - 1];
+        }
+
+        function calculateDuctRow(row) {
+            const Q = parseFloat(row.airflow) || 0;
+            const V_target = parseFloat(row.designVel) || 0.1;
+            const hl = parseFloat(row.headLoss) || 0;
+            const L = parseFloat(row.length) || 0;
+
+            let areaReq = 0; 
+            let height = 0;
+            let width = 0;
+            let roundDia = 0;
+            let actualAreaRect = 0;
+            let actualAreaRound = 0;
+            let actualVelRect = 0;
+            let actualVelRound = 0;
+            let equivDia = 0;
+            let totalLoss = 0;
+            let finalVel = 0;
+
+            if (currentUnit === 'metric') {
+                const Q_m3s = Q / 3600; // m3/s
+                areaReq = Q_m3s / V_target; // m2
+
+                // 1. Calculate Round Duct Equivalent Diameter (mm) & Round to standard
+                const rawRoundDia = Math.sqrt((4 * areaReq) / Math.PI) * 1000;
+                roundDia = roundToStandardSize(rawRoundDia, true);
+
+                // 2. AUTOMATIC RECTANGULAR DUCT SIZING (Target Aspect Ratio ~ 1:1.25)
+                const rawH_mm = Math.sqrt(areaReq / 1.25) * 1000; // mm
+                height = roundToStandardSize(rawH_mm, true);
+
+                const rawW_mm = (areaReq * 1000000) / height;
+                width = roundToStandardSize(rawW_mm, true);
+
+                if (width < height) {
+                    const temp = width;
+                    width = height;
+                    height = temp;
+                }
+
+                // 3. Actual Area & Initial Velocity
+                actualAreaRect = (width * height) / 1000000;
+                actualAreaRound = (Math.PI * Math.pow(roundDia / 1000, 2)) / 4;
+
+                actualVelRect = Q_m3s / (actualAreaRect || 0.0001);
+                actualVelRound = Q_m3s / (actualAreaRound || 0.0001);
+
+                // 4. ASHRAE Huebscher Formula for Equivalent Diameter
+                equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
+
+                // 5. Total Pressure Loss over Duct Length (Pa)
+                totalLoss = hl * L; // Pa = (Pa/m) * m
+
+                // 6. Impact of Length on Final Velocity (Hydraulic friction deceleration formula)
+                const P_dyn = 0.5 * 1.204 * Math.pow(actualVelRect, 2);
+                if (P_dyn > 0) {
+                    const velRatio = Math.sqrt(Math.max(0.15, 1 - (totalLoss / (P_dyn + totalLoss * 0.5))));
+                    finalVel = actualVelRect * velRatio;
+                } else {
+                    finalVel = actualVelRect;
+                }
+
+            } else {
+                // Imperial Sizing Logic
+                areaReq = Q / V_target; // sq ft
+
+                const rawRoundDia = Math.sqrt((4 * areaReq * 144) / Math.PI); // inches
+                roundDia = roundToStandardSize(rawRoundDia, false);
+
+                const rawH_in = Math.sqrt((areaReq * 144) / 1.25);
+                height = roundToStandardSize(rawH_in, false);
+
+                const rawW_in = (areaReq * 144) / height;
+                width = roundToStandardSize(rawW_in, false);
+
+                if (width < height) {
+                    const temp = width;
+                    width = height;
+                    height = temp;
+                }
+
+                actualAreaRect = (width * height) / 144;
+                actualAreaRound = (Math.PI * Math.pow(roundDia, 2)) / (4 * 144);
+
+                actualVelRect = Q / (actualAreaRect || 0.0001);
+                actualVelRound = Q / (actualAreaRound || 0.0001);
+
+                equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
+
+                // Total Loss in in.wg
+                totalLoss = (hl * L) / 100; // in.wg
+
+                // Dynamic pressure in in.wg: P_dyn = (V / 4005)^2
+                const P_dyn = Math.pow(actualVelRect / 4005, 2);
+                if (P_dyn > 0) {
+                    const velRatio = Math.sqrt(Math.max(0.15, 1 - (totalLoss / (P_dyn + totalLoss * 0.5))));
+                    finalVel = actualVelRect * velRatio;
+                } else {
+                    finalVel = actualVelRect;
+                }
+            }
+
+            const aspectRatio = width / (height || 1);
+
+            // Gauge Determination based on SMACNA Standard
+            const maxDim = Math.max(width, height);
+            let gauge = 'BJLS 50 (0.50 mm / 26 Ga)';
+            if (currentUnit === 'metric') {
+                if (maxDim > 2100) gauge = 'BJLS 120 (1.20 mm / 18 Ga)';
+                else if (maxDim > 1500) gauge = 'BJLS 100 (1.00 mm / 20 Ga)';
+                else if (maxDim > 750) gauge = 'BJLS 80 (0.80 mm / 22 Ga)';
+                else if (maxDim > 300) gauge = 'BJLS 60 (0.60 mm / 24 Ga)';
+            } else {
+                if (maxDim > 84) gauge = 'BJLS 120 (18 Ga)';
+                else if (maxDim > 60) gauge = 'BJLS 100 (20 Ga)';
+                else if (maxDim > 30) gauge = 'BJLS 80 (22 Ga)';
+                else if (maxDim > 12) gauge = 'BJLS 60 (24 Ga)';
+            }
+
+            return {
+                width,
+                height,
+                roundDia,
+                actualVelRect,
+                actualVelRound,
+                finalVel,
+                equivDia,
+                totalLoss,
+                aspectRatio,
+                gauge
+            };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('ductTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            ductData.forEach((row, index) => {
+                const calc = calculateDuctRow(row);
+                const isSelected = index === selectedRowIndex;
+                const tr = document.createElement('tr');
+                tr.id = `duct-row-${index}`;
+                tr.className = `hover:bg-slate-50 transition-all cursor-pointer ${isSelected ? 'bg-brand-50/60 font-medium' : ''}`;
+                
+                tr.onclick = (e) => {
+                    if (['INPUT', 'SELECT', 'BUTTON', 'I'].includes(e.target.tagName)) return;
+                    selectedRowIndex = index;
+                    renderTable();
+                    renderVisualizer(index);
+                };
+
+                tr.innerHTML = `
+                    <td class="p-2 text-center font-bold text-slate-500">${index + 1}</td>
+                    
+                    <td class="p-1.5">
+                        <input type="text" value="${row.tag}" 
+                            oninput="handleCellInput(${index}, 'tag', this.value)"
+                            class="w-full px-2 py-1 border border-slate-300 rounded focus:border-brand-500 outline-none text-xs truncate font-semibold text-slate-700">
+                    </td>
+
+                    <td class="p-1.5">
+                        <select onchange="handlePresetChange(${index}, this.value)"
+                            class="w-full px-1.5 py-1 border border-slate-300 rounded focus:border-brand-500 outline-none text-xs bg-white truncate">
+                            ${Object.keys(applicationPresets).map(pKey => `
+                                <option value="${pKey}" ${row.app === pKey ? 'selected' : ''}>
+                                    ${applicationPresets[pKey].name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </td>
+
+                    <td class="p-1.5">
+                        <input type="number" value="${row.airflow}" 
+                            oninput="handleCellInput(${index}, 'airflow', this.value)"
+                            class="w-full px-2 py-1 border border-slate-300 rounded focus:border-brand-500 outline-none text-right text-xs font-semibold">
+                    </td>
+
+                    <td class="p-1.5 bg-brand-50/40">
+                        <input type="number" value="${row.designVel}" step="0.1"
+                            oninput="handleCellInput(${index}, 'designVel', this.value)"
+                            placeholder="Input velocity..."
+                            title="Input manual nilai velocity"
+                            class="w-full px-2 py-1 border border-brand-300 rounded focus:border-brand-600 outline-none text-right text-xs font-bold text-brand-900 bg-white">
+                    </td>
+
+                    <td class="p-1.5">
+                        <input type="number" value="${row.headLoss}" step="0.01"
+                            oninput="handleCellInput(${index}, 'headLoss', this.value)"
+                            class="w-full px-2 py-1 border border-slate-300 rounded focus:border-brand-500 outline-none text-right text-xs">
+                    </td>
+
+                    <td class="p-1.5 bg-amber-50/40">
+                        <input type="number" value="${row.length}" min="0" step="1"
+                            oninput="handleCellInput(${index}, 'length', this.value)"
+                            class="w-full px-2 py-1 border border-amber-300 rounded focus:border-amber-500 outline-none text-right text-xs font-bold text-amber-900">
+                    </td>
+
+                    <td class="p-2 text-center bg-brand-50/50 border-x border-brand-100">
+                        <span id="res-rect-${index}" class="font-extrabold text-brand-700 text-xs sm:text-sm whitespace-nowrap">
+                            ${calc.width} x ${calc.height}
+                        </span>
+                    </td>
+
+                    <td class="p-2 text-center bg-teal-50/50">
+                        <span id="res-round-${index}" class="font-extrabold text-teal-700 text-xs sm:text-sm whitespace-nowrap">
+                            Ø ${calc.roundDia}
+                        </span>
+                    </td>
+
+                    <td id="res-vel-${index}" class="p-2 text-right font-semibold text-slate-700">
+                        ${calc.actualVelRect.toFixed(2)}
+                    </td>
+
+                    <td id="res-finalvel-${index}" class="p-2 text-right font-extrabold text-emerald-700 bg-emerald-50/30">
+                        ${calc.finalVel.toFixed(2)}
+                    </td>
+
+                    <td id="res-aspect-${index}" class="p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-600 font-bold' : 'text-slate-600'}">
+                        ${calc.aspectRatio.toFixed(1)}:1
+                    </td>
+
+                    <td id="res-status-${index}" class="p-2 text-center">
+                        ${getStatusBadgeHTML(calc, row)}
+                    </td>
+
+                    <td class="p-1.5 text-center no-print">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="duplicateRow(${index})" title="Duplikasi Baris" class="p-1 text-slate-400 hover:text-brand-600 transition-all">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="deleteRow(${index})" title="Hapus Baris" class="p-1 text-slate-400 hover:text-rose-600 transition-all">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusBadgeHTML(calc, row) {
+            if (calc.aspectRatio > 4.0) {
+                return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800" title="Aspect ratio > 4:1">AR High</span>';
+            } else if (calc.actualVelRect > (row.designVel * 1.25)) {
+                return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800">Velocity High</span>';
+            }
+            return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">OK</span>';
+        }
+
+        function handleCellInput(index, field, value) {
+            if (field === 'tag') {
+                ductData[index].tag = value;
+            } else {
+                const parsed = parseFloat(value);
+                ductData[index][field] = isNaN(parsed) ? 0 : parsed;
+            }
+
+            updateRowOutputs(index);
+            updateSummary();
+            if (index === selectedRowIndex) {
+                renderVisualizer(index);
+            }
+        }
+
+        function updateRowOutputs(index) {
+            const row = ductData[index];
+            const calc = calculateDuctRow(row);
+
+            const rectEl = document.getElementById(`res-rect-${index}`);
+            if (rectEl) rectEl.textContent = `${calc.width} x ${calc.height}`;
+
+            const roundEl = document.getElementById(`res-round-${index}`);
+            if (roundEl) roundEl.textContent = `Ø ${calc.roundDia}`;
+
+            const velEl = document.getElementById(`res-vel-${index}`);
+            if (velEl) velEl.textContent = calc.actualVelRect.toFixed(2);
+
+            const finalVelEl = document.getElementById(`res-finalvel-${index}`);
+            if (finalVelEl) finalVelEl.textContent = calc.finalVel.toFixed(2);
+
+            const aspectEl = document.getElementById(`res-aspect-${index}`);
+            if (aspectEl) {
+                aspectEl.textContent = `${calc.aspectRatio.toFixed(1)}:1`;
+                aspectEl.className = `p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-600 font-bold' : 'text-slate-600'}`;
+            }
+
+            const statusEl = document.getElementById(`res-status-${index}`);
+            if (statusEl) statusEl.innerHTML = getStatusBadgeHTML(calc, row);
+        }
+
+        function handlePresetChange(index, appKey) {
+            ductData[index].app = appKey;
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function addRow() {
+            const newId = ductData.length > 0 ? Math.max(...ductData.map(d => d.id)) + 1 : 1;
+            const newRow = {
+                id: newId,
+                tag: `DUCT-0${newId}`,
+                app: 'SA_MAIN',
+                airflow: currentUnit === 'metric' ? 2000 : 1200,
+                designVel: currentUnit === 'metric' ? 6.0 : 1200,
+                headLoss: currentUnit === 'metric' ? 0.8 : 0.08,
+                length: currentUnit === 'metric' ? 10 : 30
+            };
+            ductData.push(newRow);
+            selectedRowIndex = ductData.length - 1;
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function duplicateRow(index) {
+            const source = ductData[index];
+            const newRow = {
+                ...source,
+                id: Math.max(...ductData.map(d => d.id)) + 1,
+                tag: `${source.tag}-COPY`
+            };
+            ductData.splice(index + 1, 0, newRow);
+            selectedRowIndex = index + 1;
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function deleteRow(index) {
+            if (ductData.length <= 1) return;
+            ductData.splice(index, 1);
+            if (selectedRowIndex >= ductData.length) {
+                selectedRowIndex = ductData.length - 1;
+            }
+            renderTable();
+            updateSummary();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function clearAllRows() {
+            ductData = [{
+                id: 1, tag: 'NEW-01', app: 'SA_MAIN', airflow: 1000, designVel: 5.0, headLoss: 0.8, length: 10
+            }];
+            selectedRowIndex = 0;
+            renderTable();
+            updateSummary();
+            renderVisualizer(0);
+        }
+
+        function loadSampleData() {
+            if (currentUnit === 'metric') {
+                ductData = [
+                    { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', airflow: 3500, designVel: 6.5, headLoss: 0.8, length: 25 },
+                    { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', airflow: 1200, designVel: 4.5, headLoss: 0.8, length: 15 },
+                    { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', airflow: 3000, designVel: 5.5, headLoss: 0.8, length: 20 },
+                    { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', airflow: 2500, designVel: 10.0, headLoss: 1.2, length: 30 },
+                    { id: 5, tag: 'FA-FRESH-01', app: 'FA', airflow: 1800, designVel: 5.0, headLoss: 0.8, length: 12 }
+                ];
+            } else {
+                ductData = [
+                    { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', airflow: 2000, designVel: 1300, headLoss: 0.08, length: 80 },
+                    { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', airflow: 700, designVel: 900, headLoss: 0.08, length: 45 },
+                    { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', airflow: 1800, designVel: 1100, headLoss: 0.08, length: 65 },
+                    { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', airflow: 1500, designVel: 2000, headLoss: 0.12, length: 100 },
+                    { id: 5, tag: 'FA-FRESH-01', app: 'FA', airflow: 1000, designVel: 1000, headLoss: 0.08, length: 40 }
+                ];
+            }
+            selectedRowIndex = 0;
+            renderTable();
+            updateSummary();
+            renderVisualizer(0);
+        }
+
+        function updateSummary() {
+            let totalQ = 0;
+            let totalLen = 0;
+            let totalPressureDrop = 0;
+            let maxV = 0;
+
+            ductData.forEach(row => {
+                const calc = calculateDuctRow(row);
+                totalQ += parseFloat(row.airflow) || 0;
+                totalLen += parseFloat(row.length) || 0;
+                totalPressureDrop += calc.totalLoss;
+                if (calc.actualVelRect > maxV) maxV = calc.actualVelRect;
+            });
+
+            document.getElementById('statTotalSections').textContent = ductData.length;
+            document.getElementById('statTotalAirflow').textContent = `${totalQ.toLocaleString()} ${currentUnit === 'metric' ? 'm³/h' : 'CFM'}`;
+            document.getElementById('statTotalLength').textContent = `${totalLen.toLocaleString()} ${currentUnit === 'metric' ? 'm' : 'ft'}`;
+            document.getElementById('statTotalPressureDrop').textContent = `${totalPressureDrop.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'}`;
+            document.getElementById('statMaxVelocity').textContent = `${maxV.toFixed(1)} ${currentUnit === 'metric' ? 'm/s' : 'FPM'}`;
+        }
+
+        function renderVisualizer(index) {
+            if (!ductData[index]) return;
+            const row = ductData[index];
+            const calc = calculateDuctRow(row);
+
+            document.getElementById('visualizerTag').textContent = `TAG: ${row.tag}`;
+            document.getElementById('visRectSize').textContent = `${calc.width} x ${calc.height} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visRoundSize').textContent = `Ø ${calc.roundDia} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visAspect').textContent = `Aspect Ratio: ${calc.aspectRatio.toFixed(1)}:1`;
+            document.getElementById('visEqDia').textContent = `Equiv Dia: ${Math.round(calc.equivDia)} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visGauge').textContent = `Rekomendasi Tebal Seng: ${calc.gauge}`;
+            document.getElementById('visTotalLoss').textContent = `${calc.totalLoss.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'} (${row.length} ${currentUnit === 'metric' ? 'm' : 'ft'})`;
+            document.getElementById('visVelDrop').textContent = `${calc.actualVelRect.toFixed(2)} ➔ ${calc.finalVel.toFixed(2)} ${currentUnit === 'metric' ? 'm/s' : 'FPM'}`;
+
+            const svg = document.getElementById('ductSvg');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const maxBoxDim = Math.max(calc.width, calc.height, calc.roundDia);
+            const scale = 110 / (maxBoxDim || 1);
+
+            const rectW = calc.width * scale;
+            const rectH = calc.height * scale;
+            const roundR = (calc.roundDia * scale) / 2;
+
+            const rectX = 80 - rectW / 2;
+            const rectY = 100 - rectH / 2;
+
+            const roundCenterX = 220;
+            const roundCenterY = 100;
+
+            svg.innerHTML = `
+                <defs>
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#334155" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" opacity="0.3" />
+
+                <!-- RECTANGULAR DUCT -->
+                <g>
+                    <rect x="${rectX}" y="${rectY}" width="${rectW}" height="${rectH}" 
+                        fill="#0284c7" fill-opacity="0.25" stroke="#38bdf8" stroke-width="2" rx="4" />
+                    <text x="${rectX + rectW / 2}" y="${Math.max(rectY - 6, 12)}" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="bold">
+                        W: ${calc.width}
+                    </text>
+                    <text x="${Math.max(rectX - 6, 8)}" y="${rectY + rectH / 2 + 3}" text-anchor="end" fill="#93c5fd" font-size="10" font-weight="bold">
+                        H: ${calc.height}
+                    </text>
+                    <text x="80" y="185" text-anchor="middle" fill="#cbd5e1" font-size="9">RECTANGULAR STANDAR</text>
+                </g>
+
+                <!-- ROUND DUCT -->
+                <g>
+                    <circle cx="${roundCenterX}" cy="${roundCenterY}" r="${roundR}" 
+                        fill="#0d9488" fill-opacity="0.25" stroke="#2dd4bf" stroke-width="2" />
+                    <line x1="${roundCenterX - roundR}" y1="${roundCenterY}" x2="${roundCenterX + roundR}" y2="${roundCenterY}" 
+                        stroke="#2dd4bf" stroke-dasharray="3,3" stroke-width="1.5" />
+                    <text x="${roundCenterX}" y="${roundCenterY - 6}" text-anchor="middle" fill="#99f6e4" font-size="10" font-weight="bold">
+                        Ø ${calc.roundDia}
+                    </text>
+                    <text x="220" y="185" text-anchor="middle" fill="#cbd5e1" font-size="9">ROUND STANDAR</text>
+                </g>
+            `;
+        }
+
+        function exportToCSV() {
+            const author = document.getElementById('authorName').value || 'Penyusun';
+            const project = document.getElementById('projectName').value || 'Project';
+            const date = document.getElementById('docDate').value || '';
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `MASTER DUCT SIZER - REPORT\n`;
+            csvContent += `Project:,${project}\n`;
+            csvContent += `Penyusun:,${author}\n`;
+            csvContent += `Tanggal:,${date}\n`;
+            csvContent += `Satuan:,${currentUnit.toUpperCase()}\n\n`;
+
+            const qUnit = currentUnit === 'metric' ? 'm3/h' : 'CFM';
+            const vUnit = currentUnit === 'metric' ? 'm/s' : 'FPM';
+            const lenUnit = currentUnit === 'metric' ? 'm' : 'ft';
+            const dimUnit = currentUnit === 'metric' ? 'mm' : 'inch';
+            const pressUnit = currentUnit === 'metric' ? 'Pa' : 'in.wg';
+
+            csvContent += `No,Tag Kode,Peruntukan,Airflow (${qUnit}),Desain Velocity (${vUnit}),Panjang (${lenUnit}),Lebar W (${dimUnit}),Tinggi H (${dimUnit}),Round Dia (${dimUnit}),Velocity Awal (${vUnit}),Velocity Akhir (${vUnit}),Total Loss (${pressUnit}),Aspect Ratio,BJLS Gauge\n`;
+
+            ductData.forEach((row, i) => {
+                const calc = calculateDuctRow(row);
+                const appName = applicationPresets[row.app] ? applicationPresets[row.app].name : row.app;
+                csvContent += `${i + 1},"${row.tag}","${appName}",${row.airflow},${row.designVel},${row.length},${calc.width},${calc.height},${calc.roundDia},${calc.actualVelRect.toFixed(2)},${calc.finalVel.toFixed(2)},${calc.totalLoss.toFixed(1)},"${calc.aspectRatio.toFixed(1)}:1","${calc.gauge}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `MasterDuctSizer_${project.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
