@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kapasitas AC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js untuk Visualisasi 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        /* Styling khusus untuk cetak / print yang lebih simple & rapi */
+        @media print {
+            body { background: white !important; color: #1e293b !important; font-size: 12pt; }
+            header, footer, .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            main { display: block !important; padding: 0 !important; max-width: 100% !important; }
+            
+            /* Sembunyikan elemen canvas 3D saat print agar hemat kertas */
+            #canvas-container, .lg\:col-span-7 > div:first-child { display: none !important; }
+            
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                background: #ffffff !important;
+                box-shadow: none !important;
+                padding: 16px !important;
+                margin-bottom: 16px !important;
+                border-radius: 8px !important;
+            }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 10pt; color: #1e293b !important; }
+            th { background-color: #f1f5f9 !important; font-weight: bold; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-snowflake text-xl animate-spin" style="animation-duration: 8s;"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Kalkulator Kapasitas AC</h1>
+                    <p class="text-xs text-slate-400">Berdasarkan Standar Rumus BTU/h $Q = 0.59 \times W \times L \times H \times I \times E$</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btnPrintReport" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-medium transition flex items-center gap-2 shadow-lg shadow-emerald-600/30">
+                    <i class="fa-solid fa-print"></i> Cetak Print Disini (PDF)
+                </button>
+                <div class="hidden md:flex items-center gap-2 bg-slate-900/60 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300">
+                    <i class="fa-solid fa-circle-info text-blue-400"></i>
+                    <span>Putar & Zoom 3D </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Kop Laporan Khusus Print -->
+    <div class="print-only p-4">
+        <div class="border-b-2 border-slate-800 pb-3 mb-4 flex justify-between items-end">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900">LAPORAN REKOMENDASI KAPASITAS AC</h1>
+                <p class="text-xs text-slate-600">Standar Perhitungan Beban Pendingin Ruangan (BTU/h)</p>
+            </div>
+            <div class="text-right text-xs text-slate-600">
+                <div>Tanggal: <span id="printDate">-</span></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs mb-4 text-slate-800">
+            <div><strong>Pembuat / Teknisi:</strong> <span id="printClientName">-</span></div>
+            <div><strong>Proyek / Lokasi:</strong> <span id="printProjectName">-</span></div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Kolom Kiri: Form Input & Hasil Kalkulasi (5 Kolom) -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Panel Informasi Proyek & Pembuat -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl no-print">
+                <h2 class="text-base font-semibold mb-3 flex items-center gap-2 text-blue-400">
+                    <i class="fa-solid fa-user-pen"></i> Informasi Proyek & Pembuat
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Pembuat / Klien</label>
+                        <input type="text" id="inputClientName" value="Ahmad Teknisi" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Proyek / Gedung</label>
+                        <input type="text" id="inputProjectName" value="Gedung Perkantoran Sudirman" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Input Parameter -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl no-print">
+                <h2 class="text-base font-semibold mb-4 flex items-center justify-between text-blue-400">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Parameter Ruangan</span>
+                    <span id="formModeBadge" class="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">Mode Baru</span>
+                </h2>
+                
+                <div class="space-y-4">
+                    <!-- Nama Ruangan / Catatan -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Ruangan / Label</label>
+                        <input type="text" id="inputRoomName" value="Kamar Utama" 
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                    </div>
+
+                    <!-- Panjang Ruangan (W) -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Panjang Ruangan (W - meter)</label>
+                        <div class="relative">
+                            <input type="number" id="inputW" value="4" min="1" max="20" step="0.5" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500">Meter</span>
+                        </div>
+                    </div>
+
+                    <!-- Lebar Ruangan (L) -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Lebar Ruangan (L - meter)</label>
+                        <div class="relative">
+                            <input type="number" id="inputL" value="3" min="1" max="20" step="0.5" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500">Meter</span>
+                        </div>
+                    </div>
+
+                    <!-- Tinggi Ruangan (H) -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tinggi Ruangan (H - meter)</label>
+                        <div class="relative">
+                            <input type="number" id="inputH" value="3" min="2" max="10" step="0.5" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-500">Meter</span>
+                        </div>
+                    </div>
+
+                    <!-- Bahan Dinding -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Bahan Dinding / Isolasi Termal</label>
+                        <select id="inputWallMaterial" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <option value="standard">Dinding Standar Batako / Bata Merah (Biasa)</option>
+                            <option value="insulated">Dinding Berisolasi / Panel Sandwich / Gypsum Dobel</option>
+                            <option value="glass">Dinding Kaca / Full Kaca (Radiasi Tinggi)</option>
+                        </select>
+                    </div>
+
+                    <!-- Lokasi / Arah Hadap Dinding Terpanjang (E) -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Arah Hadap Dinding Terpanjang (E)</label>
+                        <select id="inputDirection" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <option value="16">Menghadap Utara (E = 16)</option>
+                            <option value="17">Menghadap Timur (E = 17)</option>
+                            <option value="18">Menghadap Selatan (E = 18)</option>
+                            <option value="20" selected>Menghadap Barat (E = 20 - Panas Maksimal)</option>
+                        </select>
+                    </div>
+
+                    <!-- Kondisi Isolasi / Lantai (I) -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Kondisi Ruangan & Lantai (I)</label>
+                        <select id="inputCondition" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <option value="18" selected>Tidak Berisolasi / Di Lantai Atas (I = 18)</option>
+                            <option value="10">Berisolasi / Di Lantai Bawah / Diapit Ruangan Lain (I = 10)</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipe AC yang Digunakan -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1"><i class="fa-solid fa-snowflake text-cyan-400"></i> Tipe AC yang Digunakan</label>
+                        <select id="inputACType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            <option value="wall_standard" selected>AC Wall Mounted Standard</option>
+                            <option value="wall_inverter">AC Wall Mounted Inverter (Hemat Energi)</option>
+                            <option value="cassette">AC Ceiling Cassette (Komersial 4-Way)</option>
+                            <option value="standing">AC Standing Floor (Kapasitas Besar)</option>
+                        </select>
+                    </div>
+
+                    <!-- Tombol Simpan / Tambah Data -->
+                    <div class="pt-2 flex gap-2">
+                        <button id="btnSaveRecord" type="button" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-4 rounded-lg text-sm shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan ke Daftar
+                        </button>
+                        <button id="btnCancelEdit" type="button" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 px-3 rounded-lg text-sm transition">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Hasil Kalkulasi Aktif -->
+            <div class="bg-gradient-to-br from-blue-900/40 to-slate-800 border border-blue-500/30 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-base font-semibold mb-3 flex items-center gap-2 text-blue-300">
+                    <i class="fa-solid fa-calculator"></i> Hasil Perhitungan Kapasitas Aktif
+                </h2>
+                
+                <div class="space-y-3 bg-slate-900/70 p-4 rounded-xl border border-slate-700/60">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-400">Total Volume Ruangan:</span>
+                        <span id="resVolume" class="font-semibold text-slate-200">0 m³</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-400">Faktor Panas Dinding (E):</span>
+                        <span id="resE" class="font-semibold text-slate-200">20</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-400">Faktor Kondisi (I):</span>
+                        <span id="resI" class="font-semibold text-slate-200">18</span>
+                    </div>
+                    <div class="border-t border-slate-700 my-2 pt-2 flex justify-between items-center">
+                        <span class="text-sm font-bold text-blue-400">Kapasitas BTU/h (Q):</span>
+                        <span id="resBTU" class="text-lg font-bold text-emerald-400">0 BTU/h</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-blue-950/50 p-2.5 rounded-lg border border-blue-800/50">
+                        <span class="text-xs font-medium text-blue-200">Rekomendasi Kapasitas AC:</span>
+                        <span id="resPK" class="text-sm font-bold text-cyan-300">1/2 PK</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Kolom Kanan: Visualisasi 3D & Tabel Data (7 Kolom) -->
+        <div class="lg:col-span-7 flex flex-col space-y-6">
+            
+            <!-- Canvas 3D Box -->
+            <div class="flex flex-col h-[420px] bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden relative no-print">
+                <!-- Header Canvas 3D -->
+                <div class="absolute top-4 left-4 z-10 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-xs flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-medium text-slate-200">Simulasi Sirkulasi Udara AC 3D Dalam Ruangan</span>
+                </div>
+
+                <!-- Legenda / Keterangan Arah -->
+                <div class="absolute bottom-4 left-4 z-10 bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700 text-xs space-y-1 text-slate-300">
+                    <div class="font-semibold text-blue-400 mb-1">Keterangan Visual:</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-cyan-400 rounded-full inline-block"></span> Aliran Partikel Dingin AC</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-amber-500 rounded inline-block"></span> Dinding Utama (<span id="txtArahLabel">Barat</span>)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-slate-600 rounded inline-block"></span> Batas Ruangan</div>
+                </div>
+
+                <!-- Tombol Reset Kamera -->
+                <div class="absolute top-4 right-4 z-10">
+                    <button id="btnResetCam" class="bg-slate-900/80 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5 shadow-lg">
+                        <i class="fa-solid fa-rotate"></i> Reset Kamera
+                    </button>
+                </div>
+
+                <!-- Canvas Container -->
+                <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+            </div>
+
+            <!-- Panel Daftar Riwayat Data Entry (Tabel Manajemen Ruangan) -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-semibold flex items-center gap-2 text-blue-400">
+                        <i class="fa-solid fa-table-list"></i> Daftar Ruangan Tersimpan (<span id="recordCount">0</span>)
+                    </h2>
+                    <button id="btnClearAll" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/50 px-2.5 py-1.5 rounded border border-rose-800/50 transition no-print">
+                        <i class="fa-solid fa-trash-can"></i> Hapus Semua
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto max-h-60 rounded-lg border border-slate-700">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900 text-slate-400 uppercase font-medium sticky top-0 border-b border-slate-700">
+                            <tr>
+                                <th class="p-3">Proyek & Ruangan</th>
+                                <th class="p-3">Pembuat</th>
+                                <th class="p-3">Dimensi (PxLxT)</th>
+                                <th class="p-3">BTU/h & PK</th>
+                                <th class="p-3 text-right no-print">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody" class="divide-y divide-slate-700/50">
+                            <!-- Diisi via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Tanda Tangan Khusus Print -->
+    <div class="print-only px-4 pt-8">
+        <div class="flex justify-between items-center text-xs">
+            <div class="text-center w-48">
+                <p class="mb-1 text-slate-600">Dibuat Oleh,</p>
+                <p class="font-semibold text-slate-900 mb-12" id="signClientName">-</p>
+                <p class="border-t border-slate-400 pt-1 text-slate-500">Teknisi</p>
+            </div>
+            <div class="text-center w-48">
+                <p class="mb-1 text-slate-600">Disetujui Oleh,</p>
+                <p class="font-semibold text-slate-900 mb-12">( ........................................ )</p>
+                <p class="border-t border-slate-400 pt-1 text-slate-500">Klien / Pemilik Gedung</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800 mt-auto no-print">
+        Mas By &copy; 2026 - Berdasarkan Standar Rumus BTU/h
+    </footer>
+
+    <!-- Script Kalkulasi & Three.js 3D Sirkulasi Udara -->
+    <script>
+        let scene, camera, renderer, roomGroup;
+        let airParticles;
+        const particleCount = 150;
+        let particlePositions, particleVelocities;
+        
+        let isDragging = false, previousMousePosition = { x: 0, y: 0 };
+        let cameraAngleX = 0.5, cameraAngleY = 0.8, cameraDistance = 12;
+
+        // Data Management State
+        let savedRecords = [
+            {
+                id: 1,
+                clientName: 'Ahmad Teknisi',
+                projectName: 'Gedung Perkantoran Sudirman',
+                name: 'Kamar Utama',
+                w: 4, l: 3, h: 3,
+                wallMaterial: 'standard',
+                direction: '20',
+                condition: '18',
+                acType: 'wall_standard',
+                acTypeName: 'AC Wall Mounted Standard',
+                btu: 5076,
+                pk: '3/4 PK (~7.000 BTU/h)'
+            }
+        ];
+        let editingIndex = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            setupEventListeners();
+            calculateAC();
+            renderRecordsTable();
+            animate();
+        });
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            updateCameraPosition();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 15);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x38bdf8, 1, 50);
+            pointLight.position.set(0, 3, 0);
+            scene.add(pointLight);
+
+            const gridHelper = new THREE.GridHelper(20, 20, 0x334155, 0x1e293b);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            roomGroup = new THREE.Group();
+            scene.add(roomGroup);
+
+            buildAirCirculationParticles();
+
+            // Mouse Interaction
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                cameraAngleY -= deltaX * 0.008;
+                cameraAngleX = Math.max(0.1, Math.min(1.5, cameraAngleX - deltaY * 0.008));
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                updateCameraPosition();
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            // Touch support
+            container.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+                cameraAngleY -= deltaX * 0.008;
+                cameraAngleX = Math.max(0.1, Math.min(1.5, cameraAngleX - deltaY * 0.008));
+
+                previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                updateCameraPosition();
+            });
+
+            window.addEventListener('touchend', () => { isDragging = false; });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance = Math.max(5, Math.min(25, cameraDistance + e.deltaY * 0.01));
+                updateCameraPosition();
+            }, { passive: false });
+
+            window.addEventListener('resize', onWindowResize);
+
+            document.getElementById('btnResetCam').addEventListener('click', () => {
+                cameraAngleX = 0.5;
+                cameraAngleY = 0.8;
+                cameraDistance = 12;
+                updateCameraPosition();
+            });
+
+            update3DRoom();
+        }
+
+        function updateCameraPosition() {
+            const x = cameraDistance * Math.sin(cameraAngleX) * Math.sin(cameraAngleY);
+            const y = cameraDistance * Math.cos(cameraAngleX);
+            const z = cameraDistance * Math.sin(cameraAngleX) * Math.cos(cameraAngleY);
+            camera.position.set(x, y + 1, z);
+            camera.lookAt(0, 1, 0);
+        }
+
+        function setupEventListeners() {
+            const inputs = ['inputW', 'inputL', 'inputH', 'inputWallMaterial', 'inputDirection', 'inputCondition', 'inputACType'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', () => {
+                    calculateAC();
+                    update3DRoom();
+                });
+                document.getElementById(id).addEventListener('change', () => {
+                    calculateAC();
+                    update3DRoom();
+                });
+            });
+
+            // Tombol Simpan / Tambah Data
+            document.getElementById('btnSaveRecord').addEventListener('click', () => {
+                saveOrUpdateRecord();
+            });
+
+            // Tombol Batal Edit
+            document.getElementById('btnCancelEdit').addEventListener('click', () => {
+                resetFormToNew();
+            });
+
+            // Tombol Hapus Semua
+            document.getElementById('btnClearAll').addEventListener('click', () => {
+                if (confirm('Yakin ingin menghapus seluruh data ruangan?')) {
+                    savedRecords = [];
+                    renderRecordsTable();
+                }
+            });
+
+            // Tombol Print
+            document.getElementById('btnPrintReport').addEventListener('click', () => {
+                const clientNameVal = document.getElementById('inputClientName').value || '-';
+                document.getElementById('printClientName').innerText = clientNameVal;
+                document.getElementById('signClientName').innerText = `( ${clientNameVal} )`;
+                document.getElementById('printProjectName').innerText = document.getElementById('inputProjectName').value || '-';
+                document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                window.print();
+            });
+        }
+
+        function calculateAC() {
+            const W = parseFloat(document.getElementById('inputW').value) || 4;
+            const L = parseFloat(document.getElementById('inputL').value) || 3;
+            const H = parseFloat(document.getElementById('inputH').value) || 3;
+            const E = parseInt(document.getElementById('inputDirection').value) || 20;
+            const I = parseInt(document.getElementById('inputCondition').value) || 18;
+            const wallMaterial = document.getElementById('inputWallMaterial').value;
+            const acTypeSelect = document.getElementById('inputACType');
+            const acType = acTypeSelect.value;
+            const acTypeName = acTypeSelect.options[acTypeSelect.selectedIndex].text;
+
+            let wallFactorMultiplier = 1.0;
+            if (wallMaterial === 'insulated') wallFactorMultiplier = 0.85;
+            if (wallMaterial === 'glass') wallFactorMultiplier = 1.25;
+
+            // Faktor koreksi tipe AC terhadap beban pendingin efisiensi
+            let acEfficiencyMultiplier = 1.0;
+            if (acType === 'wall_inverter') acEfficiencyMultiplier = 0.95; // Inverter lebih stabil / efisien
+            if (acType === 'cassette') acEfficiencyMultiplier = 1.05;
+            if (acType === 'standing') acEfficiencyMultiplier = 1.1;
+
+            let Q = 0.59 * W * L * H * I * E * wallFactorMultiplier * acEfficiencyMultiplier;
+            const volume = W * L * H;
+
+            document.getElementById('resVolume').innerText = volume.toFixed(1) + ' m³';
+            document.getElementById('resE').innerText = E;
+            document.getElementById('resI').innerText = I;
+            document.getElementById('resBTU').innerText = Math.round(Q).toLocaleString('id-ID') + ' BTU/h';
+
+            let pkText = '1/2 PK (~5.000 BTU/h)';
+            if (Q > 14000) pkText = '2 PK (~18.000 BTU/h)';
+            else if (Q > 10000) pkText = '1.5 PK (~12.000 BTU/h)';
+            else if (Q > 7000) pkText = '1 PK (~9.000 BTU/h)';
+            else if (Q > 5000) pkText = '3/4 PK (~7.000 BTU/h)';
+            document.getElementById('resPK').innerText = pkText + ` (${acTypeName.split('(')[0].trim()})`;
+
+            const dirSelect = document.getElementById('inputDirection');
+            const selectedDirText = dirSelect.options[dirSelect.selectedIndex].text.split('(')[0].trim();
+            document.getElementById('txtArahLabel').innerText = selectedDirText.replace('Menghadap ', '');
+
+            return { Q, pkText, acTypeName };
+        }
+
+        function saveOrUpdateRecord() {
+            const clientName = document.getElementById('inputClientName').value || 'Tanpa Nama';
+            const projectName = document.getElementById('inputProjectName').value || 'Tanpa Proyek';
+            const name = document.getElementById('inputRoomName').value || 'Ruangan Tanpa Nama';
+            const W = parseFloat(document.getElementById('inputW').value) || 4;
+            const L = parseFloat(document.getElementById('inputL').value) || 3;
+            const H = parseFloat(document.getElementById('inputH').value) || 3;
+            const wallMaterial = document.getElementById('inputWallMaterial').value;
+            const direction = document.getElementById('inputDirection').value;
+            const condition = document.getElementById('inputCondition').value;
+            const acTypeSelect = document.getElementById('inputACType');
+            const acType = acTypeSelect.value;
+            const acTypeName = acTypeSelect.options[acTypeSelect.selectedIndex].text;
+
+            const calc = calculateAC();
+
+            const recordData = {
+                id: editingIndex !== null ? savedRecords[editingIndex].id : Date.now(),
+                clientName, projectName,
+                name, w: W, l: L, h: H,
+                wallMaterial, direction, condition,
+                acType, acTypeName,
+                btu: Math.round(calc.Q),
+                pk: calc.pkText
+            };
+
+            if (editingIndex !== null) {
+                savedRecords[editingIndex] = recordData;
+                resetFormToNew();
+            } else {
+                savedRecords.push(recordData);
+            }
+
+            renderRecordsTable();
+        }
+
+        function renderRecordsTable() {
+            const tbody = document.getElementById('recordsTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('recordCount').innerText = savedRecords.length;
+
+            if (savedRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Belum ada data ruangan yang disimpan.</td></tr>`;
+                return;
+            }
+
+            savedRecords.forEach((rec, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/50 transition";
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-semibold text-slate-200">${rec.name}</div>
+                        <div class="text-[10px] text-blue-400">${rec.projectName}</div>
+                    </td>
+                    <td class="p-3 text-slate-300">${rec.clientName}</td>
+                    <td class="p-3 text-slate-400">${rec.w}m × ${rec.l}m × ${rec.h}m</td>
+                    <td class="p-3">
+                        <div class="font-semibold text-emerald-400">${rec.btu.toLocaleString('id-ID')} BTU/h</div>
+                        <div class="text-[10px] text-cyan-300">${rec.pk}</div>
+                        <div class="text-[9px] text-slate-400 italic">${rec.acTypeName || 'AC Wall Mounted Standard'}</div>
+                    </td>
+                    <td class="p-3 text-right space-x-2 no-print">
+                        <button onclick="editRecord(${idx})" class="bg-slate-700 hover:bg-blue-600 text-slate-200 hover:text-white px-2.5 py-1 rounded transition text-xs" title="Edit Data">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteRecord(${idx})" class="bg-slate-700 hover:bg-rose-600 text-slate-200 hover:text-white px-2.5 py-1 rounded transition text-xs" title="Hapus Data">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editRecord(idx) {
+            const rec = savedRecords[idx];
+            editingIndex = idx;
+
+            if (rec.clientName) document.getElementById('inputClientName').value = rec.clientName;
+            if (rec.projectName) document.getElementById('inputProjectName').value = rec.projectName;
+            document.getElementById('inputRoomName').value = rec.name;
+            document.getElementById('inputW').value = rec.w;
+            document.getElementById('inputL').value = rec.l;
+            document.getElementById('inputH').value = rec.h;
+            document.getElementById('inputWallMaterial').value = rec.wallMaterial;
+            document.getElementById('inputDirection').value = rec.direction;
+            document.getElementById('inputCondition').value = rec.condition;
+            if (rec.acType) document.getElementById('inputACType').value = rec.acType;
+
+            document.getElementById('btnSaveRecord').innerHTML = `<i class="fa-solid fa-check"></i> Perbarui Data`;
+            document.getElementById('formModeBadge').innerText = `Mode Edit #${idx + 1}`;
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+            calculateAC();
+            update3DRoom();
+        }
+
+        function deleteRecord(idx) {
+            if (confirm(`Hapus data ruangan "${savedRecords[idx].name}"?`)) {
+                savedRecords.splice(idx, 1);
+                if (editingIndex === idx) {
+                    resetFormToNew();
+                } else if (editingIndex > idx) {
+                    editingIndex--;
+                }
+                renderRecordsTable();
+            }
+        }
+
+        function resetFormToNew() {
+            editingIndex = null;
+            document.getElementById('inputRoomName').value = 'Ruangan Baru';
+            document.getElementById('btnSaveRecord').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan ke Daftar`;
+            document.getElementById('formModeBadge').innerText = `Mode Baru`;
+            document.getElementById('btnCancelEdit').classList.add('hidden');
+            calculateAC();
+            update3DRoom();
+        }
+
+        function buildAirCirculationParticles() {
+            const geometry = new THREE.BufferGeometry();
+            particlePositions = new Float32Array(particleCount * 3);
+            particleVelocities = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                particlePositions[i * 3]     = (Math.random() - 0.5) * 0.8;
+                particlePositions[i * 3 + 1] = 2.0;
+                particlePositions[i * 3 + 2] = -1.0;
+
+                particleVelocities.push({
+                    x: (Math.random() - 0.5) * 0.03,
+                    y: -Math.random() * 0.02 - 0.01,
+                    z: Math.random() * 0.04 + 0.02
+                });
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+            gradient.addColorStop(0, 'rgba(56, 189, 248, 1)');
+            gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 16, 16);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.PointsMaterial({
+                size: 0.35,
+                map: texture,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            airParticles = new THREE.Points(geometry, material);
+            scene.add(airParticles);
+        }
+
+        function updateAirParticles() {
+            if (!airParticles) return;
+            const W = parseFloat(document.getElementById('inputW').value) || 4;
+            const L = parseFloat(document.getElementById('inputL').value) || 3;
+            const H = parseFloat(document.getElementById('inputH').value) || 3;
+            const acType = document.getElementById('inputACType').value;
+
+            const positions = airParticles.geometry.attributes.position.array;
+            let acY = H - 0.4;
+            let acZ = -L / 2 + 0.2;
+            let acX = 0;
+
+            if (acType === 'cassette') {
+                acY = H - 0.15;
+                acZ = 0;
+            } else if (acType === 'standing') {
+                acY = 0.8;
+                acZ = L / 2 - 0.3;
+                acX = W / 2 - 0.4;
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3]     += particleVelocities[i].x;
+                positions[i * 3 + 1] += particleVelocities[i].y;
+                positions[i * 3 + 2] += particleVelocities[i].z;
+
+                if (positions[i * 3 + 1] < 0.1 || 
+                    Math.abs(positions[i * 3]) > W / 2 || 
+                    positions[i * 3 + 2] > L / 2 || 
+                    positions[i * 3 + 2] < -L / 2) {
+                    
+                    if (acType === 'standing') {
+                        positions[i * 3]     = acX + (Math.random() - 0.5) * 0.3;
+                        positions[i * 3 + 1] = acY + 0.5;
+                        positions[i * 3 + 2] = acZ;
+                        particleVelocities[i] = {
+                            x: -Math.random() * 0.04 - 0.01,
+                            y: Math.random() * 0.03 + 0.01,
+                            z: -Math.random() * 0.05 - 0.02
+                        };
+                    } else if (acType === 'cassette') {
+                        positions[i * 3]     = (Math.random() - 0.5) * 0.4;
+                        positions[i * 3 + 1] = acY - 0.1;
+                        positions[i * 3 + 2] = (Math.random() - 0.5) * 0.4;
+                        particleVelocities[i] = {
+                            x: (Math.random() - 0.5) * 0.05,
+                            y: -Math.random() * 0.02 - 0.01,
+                            z: (Math.random() - 0.5) * 0.05
+                        };
+                    } else {
+                        positions[i * 3]     = (Math.random() - 0.5) * 0.8;
+                        positions[i * 3 + 1] = acY - 0.1;
+                        positions[i * 3 + 2] = acZ;
+                        particleVelocities[i] = {
+                            x: (Math.random() - 0.5) * 0.04,
+                            y: -Math.random() * 0.02 - 0.01,
+                            z: Math.random() * 0.05 + 0.02
+                        };
+                    }
+                }
+            }
+            airParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function update3DRoom() {
+            while(roomGroup.children.length > 0){ 
+                roomGroup.remove(roomGroup.children[0]); 
+            }
+
+            const W = parseFloat(document.getElementById('inputW').value) || 4;
+            const L = parseFloat(document.getElementById('inputL').value) || 3;
+            const H = parseFloat(document.getElementById('inputH').value) || 3;
+            const wallMaterial = document.getElementById('inputWallMaterial').value;
+            const acType = document.getElementById('inputACType').value;
+
+            let wallColor = 0x334155; 
+            let wallOpacity = 0.25;
+            if (wallMaterial === 'insulated') { wallColor = 0x3b82f6; wallOpacity = 0.35; }
+            if (wallMaterial === 'glass') { wallColor = 0x06b6d4; wallOpacity = 0.15; }
+
+            const floorGeo = new THREE.PlaneGeometry(W, L);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            roomGroup.add(floor);
+
+            const floorEdges = new THREE.EdgesGeometry(floorGeo);
+            const floorLine = new THREE.LineSegments(floorEdges, new THREE.LineBasicMaterial({ color: 0x475569 }));
+            floorLine.rotation.x = -Math.PI / 2;
+            floorLine.position.y = 0.001;
+            roomGroup.add(floorLine);
+
+            const commonWallMat = new THREE.MeshStandardMaterial({ 
+                color: wallColor, 
+                side: THREE.DoubleSide, 
+                transparent: true, 
+                opacity: wallOpacity,
+                roughness: 0.2
+            });
+
+            const frontWallGeo = new THREE.PlaneGeometry(W, H);
+            const frontWall = new THREE.Mesh(frontWallGeo, new THREE.MeshStandardMaterial({color: wallColor, side: THREE.DoubleSide, transparent: true, opacity: 0.05}));
+            frontWall.position.set(0, H/2, L/2);
+            roomGroup.add(frontWall);
+
+            const backWall = new THREE.Mesh(frontWallGeo, commonWallMat);
+            backWall.position.set(0, H/2, -L/2);
+            roomGroup.add(backWall);
+
+            const sideWallGeoW = new THREE.PlaneGeometry(L, H);
+            const leftWall = new THREE.Mesh(sideWallGeoW, commonWallMat);
+            leftWall.rotation.y = Math.PI / 2;
+            leftWall.position.set(-W/2, H/2, 0);
+            roomGroup.add(leftWall);
+
+            const rightWallMat = new THREE.MeshStandardMaterial({ 
+                color: 0xf59e0b, 
+                side: THREE.DoubleSide, 
+                transparent: true, 
+                opacity: wallOpacity + 0.15,
+                roughness: 0.2
+            });
+            const rightWall = new THREE.Mesh(sideWallGeoW, rightWallMat);
+            rightWall.rotation.y = -Math.PI / 2;
+            rightWall.position.set(W/2, H/2, 0);
+            roomGroup.add(rightWall);
+
+            // Render 3D AC Unit Sesuai Tipe
+            const acGroup = new THREEE_Or_CreateAC();
+            function THREEE_Or_CreateAC() {
+                const group = new THREE.Group();
+                
+                if (acType === 'wall_standard' || acType === 'wall_inverter') {
+                    // Wall Mounted Unit
+                    const acBodyGeo = new THREE.BoxGeometry(1.2, 0.35, 0.3);
+                    const bodyColor = acType === 'wall_inverter' ? 0xe0f2fe : 0xf8fafc;
+                    const acBodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.2 });
+                    const acBody = new THREE.Mesh(acBodyGeo, acBodyMat);
+                    group.add(acBody);
+
+                    // Inverter badge or Indicator LED
+                    const ledGeo = new THREE.SphereGeometry(0.03, 8, 8);
+                    const ledMat = new THREE.MeshBasicMaterial({ color: acType === 'wall_inverter' ? 0x06b6d4 : 0x38bdf8 });
+                    const led = new THREE.Mesh(ledGeo, ledMat);
+                    led.position.set(0.4, -0.1, 0.15);
+                    group.add(led);
+
+                    group.position.set(0, H - 0.4, -L/2 + 0.2);
+                } 
+                else if (acType === 'cassette') {
+                    // Ceiling Cassette Unit (di tengah plafon)
+                    const cassetteGeo = new THREE.BoxGeometry(1.4, 0.15, 1.4);
+                    const cassetteMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 });
+                    const cassette = new THREE.Mesh(cassetteGeo, cassetteMat);
+                    group.add(cassette);
+
+                    // Grille tengah
+                    const grilleGeo = new THREE.BoxGeometry(0.9, 0.16, 0.9);
+                    const grilleMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+                    const grille = new THREE.Mesh(grilleGeo, grilleMat);
+                    group.add(grille);
+
+                    group.position.set(0, H - 0.1, 0);
+                }
+                else if (acType === 'standing') {
+                    // Standing Floor AC Unit (berdiri di sudut/samping)
+                    const standGeo = new THREE.BoxGeometry(0.5, 1.6, 0.4);
+                    const standMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 });
+                    const stand = new THREE.Mesh(standGeo, standMat);
+                    group.add(stand);
+
+                    // Panel layar AC Standing
+                    const panelGeo = new THREE.BoxGeometry(0.3, 0.4, 0.05);
+                    const panelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.1 });
+                    const panel = new THREE.Mesh(panelGeo, panelMat);
+                    panel.position.set(0, 0.4, 0.2);
+                    group.add(panel);
+
+                    group.position.set(W/2 - 0.4, 0.8, L/2 - 0.5);
+                }
+
+                return group;
+            }
+
+            roomGroup.add(acGroup);
+
+            const deskGeo = new THREE.BoxGeometry(Math.min(W * 0.5, 1.2), 0.75, Math.min(L * 0.4, 0.8));
+            const deskMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5 });
+            const desk = new THREE.Mesh(deskGeo, deskMat);
+            desk.position.set(0, 0.375, 0);
+            desk.castShadow = true;
+            roomGroup.add(desk);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateAirParticles();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
