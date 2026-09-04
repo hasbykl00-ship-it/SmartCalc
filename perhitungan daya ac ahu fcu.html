@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kapasitas & Daya AC</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti for Interactive Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .print-border { border-color: #cbd5e1 !important; }
+        }
+        .print-only { display: none; }
+
+        /* Custom Electrical Flow Animation Styles */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; filter: drop-shadow(0 0 2px rgba(6, 182, 212, 0.5)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.9)); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes dashFlow {
+            to { stroke-dashoffset: -20; }
+        }
+        .animate-dash {
+            stroke-dasharray: 6 6;
+            animation: dashFlow 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-white">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <header class="mb-8 text-center no-print">
+            <div class="inline-flex items-center justify-center p-3 bg-cyan-500/10 rounded-2xl mb-3 border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
+                <i data-lucide="snowflake" class="w-8 h-8 text-cyan-400 animate-spin" style="animation-duration: 8s;"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Kalkulator Kapasitas & Daya AC</h1>
+            <p class="mt-2 text-sm text-slate-400 max-w-2xl mx-auto">
+                Sistem perhitungan otomatis berdasarkan standar teknis (Btu/h ke Watt Kompressor & Daya Fan AHU/FCU) dengan animasi sirkuit kelistrikan dinamis.
+            </p>
+        </header>
+
+        <!-- Header khusus cetak PDF -->
+        <div class="print-only mb-6 text-center border-b pb-4">
+            <h1 class="text-2xl font-bold text-slate-900">LAPORAN SUMMARY KAPASITAS & DAYA AC</h1>
+            <p class="text-sm text-slate-600">Perhitungan Teknis Beban Pendinginan & Kebutuhan Daya Listrik</p>
+            <div class="mt-4 flex justify-between text-left text-sm px-4">
+                <div>
+                    <p><b>Nama Pemesan:</b> <span id="printClientName">-</span></p>
+                    <p><b>Nama Proyek:</b> <span id="printProjectName">-</span></p>
+                </div>
+                <div>
+                    <p><b>Tanggal:</b> <span id="printDate">-</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Kolom 1 & 2: Input & Data Entry -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Form Informasi Proyek & Pemesan -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-2xl p-6 shadow-xl no-print">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-700">
+                        <i data-lucide="user-check" class="w-5 h-5 text-cyan-400"></i>
+                        <h2 class="text-lg font-semibold text-white">Informasi Pemesan & Proyek</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Pemesan / Klien</label>
+                            <input type="text" id="clientNameInput" placeholder="Contoh: PT Bangun Persada" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Proyek</label>
+                            <input type="text" id="projectNameInput" placeholder="Contoh: Renovasi Gedung Tower A" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Input Ruangan / AC Unit -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-2xl p-6 shadow-xl no-print">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-5 h-5 text-cyan-400"></i>
+                            <h2 class="text-lg font-semibold text-white">Input Data Ruangan / Unit AC</h2>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-medium">Standar Excel Sheet</span>
+                    </div>
+
+                    <form id="acForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nama Ruangan / Unit</label>
+                            <input type="text" id="roomName" required placeholder="Contoh: Ruang Meeting Utama" 
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Kapasitas Beban (Btu/h)</label>
+                            <input type="number" id="btuInput" required placeholder="Contoh: 34120" value="34120" min="1000"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Tipe Sistem Pendingin</label>
+                            <select id="systemType" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                                <option value="standard">AC Standar / Split / Cassette</option>
+                                <option value="ahu">AHU (Air Handling Unit)</option>
+                                <option value="fcu">FCU (Fan Coil Unit)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Kapasitas Fan (CFM) <span class="text-slate-500 text-[10px]">(Khusus AHU/FCU)</span></label>
+                            <input type="number" id="cfmInput" value="350"
+                                class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition">
+                        </div>
+
+                        <div class="md:col-span-2 pt-2 flex gap-3">
+                            <button type="submit" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium py-2.5 px-4 rounded-xl transition shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 text-sm">
+                                <i data-lucide="calculator" class="w-4 h-4"></i> Tambah & Hitung Unit
+                            </button>
+                            <button type="button" id="resetForm" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium py-2.5 px-4 rounded-xl transition text-sm">
+                                Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabel Data Entry & Riwayat -->
+                <div class="bg-slate-800/80 backdrop-blur border border-slate-700/60 rounded-2xl p-6 shadow-xl">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="table" class="w-5 h-5 text-cyan-400"></i>
+                            <h2 class="text-lg font-semibold text-white">Data Entry & Daftar Unit AC</h2>
+                        </div>
+                        <button id="clearAll" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20 transition no-print">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Semua
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-300 print-border">
+                            <thead class="bg-slate-900/60 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-3">Ruangan</th>
+                                    <th class="p-3">Btu/h</th>
+                                    <th class="p-3">Daya Kompressor</th>
+                                    <th class="p-3">Daya Fan (AHU/FCU)</th>
+                                    <th class="p-3 text-center no-print">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unitTableBody" class="divide-y divide-slate-700/50">
+                                <!-- Baris dinamis via JS -->
+                            </tbody>
+                        </table>
+                        <div id="emptyState" class="text-center py-8 text-slate-500 text-sm">
+                            Belum ada data unit AC dimasukkan. Silakan input pada form di atas.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Kolom 3: Akumulasi, Animasi Kelistrikan & Cetak Laporan -->
+            <div class="space-y-6 no-print">
+                
+                <!-- Panel Animasi Kelistrikan AC -->
+                <div class="bg-slate-800/90 backdrop-blur border border-cyan-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="zap" class="w-5 h-5 text-amber-400 animate-pulse"></i>
+                            <h3 class="text-sm font-semibold text-white">Simulasi Aliran Daya Listrik AC</h3>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Circuit
+                        </span>
+                    </div>
+
+                    <!-- Diagram SVG Animasi Kelistrikan -->
+                    <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-700/80 flex flex-col items-center justify-center relative">
+                        <svg class="w-full h-36" viewBox="0 0 300 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Power Source Grid -->
+                            <rect x="10" y="45" width="40" height="40" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+                            <text x="30" y="62" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle">GRID</text>
+                            <text x="30" y="75" fill="#94a3b8" font-size="8" text-anchor="middle">220V/380V</text>
+
+                            <!-- Animated Transmission Path 1 (Compressor) -->
+                            <path d="M 50 60 L 120 60 L 120 30 L 180 30" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                            <path id="circuitPath1" d="M 50 60 L 120 60 L 120 30 L 180 30" stroke="#06b6d4" stroke-width="3" stroke-linecap="round" class="animate-dash"/>
+
+                            <!-- Animated Transmission Path 2 (Fan AHU/FCU) -->
+                            <path d="M 50 70 L 120 70 L 120 100 L 180 100" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                            <path id="circuitPath2" d="M 50 70 L 120 70 L 120 100 L 180 100" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" class="animate-dash" style="animation-duration: 0.8s;"/>
+
+                            <!-- Compressor Node Box -->
+                            <rect x="180" y="10" width="110" height="40" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2" class="animate-pulse-glow"/>
+                            <circle cx="195" cy="30" r="8" fill="#f59e0b" opacity="0.3"/>
+                            <path d="M 192 27 L 198 33 M 198 27 L 192 33" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+                            <text x="212" y="27" fill="#fbbf24" font-size="9" font-weight="bold">KOMPRESSOR</text>
+                            <text x="212" y="38" fill="#cbd5e1" font-size="8" id="animCompWatt">0 W</text>
+
+                            <!-- Fan AHU/FCU Node Box -->
+                            <rect x="180" y="80" width="110" height="40" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2" class="animate-pulse-glow"/>
+                            <circle cx="195" cy="100" r="8" fill="#3b82f6" opacity="0.3"/>
+                            <!-- Spinning fan blade icon -->
+                            <g transform="translate(195, 100)" class="animate-spin" style="animation-duration: 2s; transform-origin: center;">
+                                <path d="M 0 -5 L 3 0 L 0 5 L -3 0 Z" fill="#60a5fa"/>
+                                <path d="M -5 0 L 0 3 L 5 0 L 0 -3 Z" fill="#60a5fa"/>
+                            </g>
+                            <text x="212" y="97" fill="#60a5fa" font-size="9" font-weight="bold">FAN / AHU</text>
+                            <text x="212" y="108" fill="#cbd5e1" font-size="8" id="animFanWatt">0 W</text>
+                        </svg>
+                        <p class="text-[11px] text-slate-400 mt-2 text-center">Kecepatan pulsa & rotasi merepresentasikan besaran konsumsi daya listrik.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-800/90 backdrop-blur border border-cyan-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-cyan-400"></i>
+                            <h2 class="text-lg font-semibold text-white">Ringkasan Total</h2>
+                        </div>
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </div>
+
+                    <!-- Ringkasan Statistik -->
+                    <div class="space-y-4 mb-6">
+                        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block">Total Unit Terdaftar</span>
+                            <span id="sumTotalUnits" class="text-xl font-bold text-white">0 Unit</span>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block">Akumulasi Beban Pendinginan</span>
+                            <span id="sumTotalBtu" class="text-xl font-bold text-cyan-400">0 Btu/h</span>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block">Total Daya Kompressor (Listrik AC)</span>
+                            <span id="sumTotalCompWatt" class="text-xl font-bold text-amber-400">0 Watt</span>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block">Total Daya Fan (AHU/FCU)</span>
+                            <span id="sumTotalFanWatt" class="text-xl font-bold text-blue-400">0 Watt</span>
+                        </div>
+
+                        <div class="bg-cyan-500/10 p-4 rounded-xl border border-cyan-500/30">
+                            <span class="text-xs font-medium text-cyan-300 block mb-1">TOTAL KESELURUHAN DAYA LISTRIK</span>
+                            <span id="sumTotalAllWatt" class="text-2xl font-black text-cyan-400">0 Watt</span>
+                            <span id="sumTotalKW" class="text-xs text-slate-400 mt-0.5 block">(0 kW)</span>
+                        </div>
+                    </div>
+
+                    <!-- Aksi Cetak PDF & Export -->
+                    <div class="space-y-3">
+                        <button id="btnPrintPDF" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="printer" class="w-4 h-4"></i> Cetak / Simpan Laporan PDF
+                        </button>
+                        <button id="btnExportCSV" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export Data (CSV)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rumus Referensi Excel -->
+                <div class="bg-slate-800/60 backdrop-blur border border-slate-700/40 rounded-2xl p-5 text-xs text-slate-400 space-y-2">
+                    <div class="font-semibold text-slate-300 flex items-center gap-1.5 mb-1">
+                        <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i> Formula Standar Perhitungan:
+                    </div>
+                    <p>• <b>Daya Kompressor AC:</b> (Btu/h / 9000) × 746 × 1.3 Watt</p>
+                    <p>• <b>Daya Fan AHU/FCU:</b> (Q × 1.7 × (Pressure Drop + v² × 0.6)) / (Efisiensi × 3600)</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-slate-800 text-center text-xs text-slate-500 no-print">
+        <p>Mas By © 2026 Kalkulator Kapasitas & Daya AC.</p>
+        <p class="mt-1">Dirancang untuk efisiensi perencanaan HVAC.</p>
+    </footer>
+
+    <!-- Script Kalkulator Real-time & Animasi Kelistrikan -->
+    <script>
+        // State data unit AC
+        let units = [
+            {
+                id: 1,
+                name: "Ruang Utama (Default)",
+                btu: 34120,
+                type: "standard",
+                cfm: 350,
+                compWatt: 3676.62,
+                fanWatt: 0
+            }
+        ];
+
+        // Inisialisasi Lucide Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderTable();
+            updateSummary();
+
+            // Event listener tipe sistem untuk mengaktifkan/nonaktifkan input CFM
+            document.getElementById('systemType').addEventListener('change', (e) => {
+                const cfmInput = document.getElementById('cfmInput');
+                if (e.target.value === 'standard') {
+                    cfmInput.disabled = true;
+                    cfmInput.classList.add('opacity-50');
+                } else {
+                    cfmInput.disabled = false;
+                    cfmInput.classList.remove('opacity-50');
+                }
+            });
+            // Trigger awal
+            document.getElementById('systemType').dispatchEvent(new Event('change'));
+        });
+
+        // Form Submit Handler
+        document.getElementById('acForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('roomName').value;
+            const btu = parseFloat(document.getElementById('btuInput').value);
+            const type = document.getElementById('systemType').value;
+            const cfm = parseFloat(document.getElementById('cfmInput').value) || 0;
+
+            // Perhitungan standar sesuai Excel
+            const compWatt = (btu / 9000) * 746 * 1.3;
+
+            let fanWatt = 0;
+            if (type === 'ahu' || type === 'fcu') {
+                const pressureDrop = type === 'ahu' ? 375 : 250; 
+                const v = 3; 
+                const efficiency = 0.8;
+                fanWatt = (cfm * 1.7 * (pressureDrop + Math.pow(v, 2) * 0.6)) / (efficiency * 3600);
+            }
+
+            const newUnit = {
+                id: Date.now(),
+                name,
+                btu,
+                type,
+                cfm,
+                compWatt,
+                fanWatt
+            };
+
+            units.push(newUnit);
+            renderTable();
+            updateSummary();
+            
+            document.getElementById('roomName').value = '';
+            document.getElementById('roomName').focus();
+
+            confetti({
+                particleCount: 30,
+                spread: 60,
+                origin: { y: 0.8 }
+            });
+        });
+
+        // Reset Form Button
+        document.getElementById('resetForm').addEventListener('click', () => {
+            document.getElementById('roomName').value = '';
+            document.getElementById('btuInput').value = '34120';
+            document.getElementById('systemType').value = 'standard';
+            document.getElementById('cfmInput').value = '350';
+            document.getElementById('systemType').dispatchEvent(new Event('change'));
+        });
+
+        // Hapus Item Unit Berdasarkan ID
+        window.deleteUnit = function(id) {
+            units = units.filter(u => u.id !== id);
+            renderTable();
+            updateSummary();
+        };
+
+        // Hapus Semua Data
+        document.getElementById('clearAll').addEventListener('click', () => {
+            if (confirm('Apakah Anda yakin ingin menghapus semua data unit AC?')) {
+                units = [];
+                renderTable();
+                updateSummary();
+            }
+        });
+
+        // Render Tabel Data
+        function renderTable() {
+            const tbody = document.getElementById('unitTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            tbody.innerHTML = '';
+
+            if (units.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            units.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/30 transition';
+                
+                let typeBadge = '';
+                if (u.type === 'standard') typeBadge = '<span class="text-xs bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500/20">Standar AC</span>';
+                else if (u.type === 'ahu') typeBadge = '<span class="text-xs bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded border border-amber-500/20">AHU</span>';
+                else typeBadge = '<span class="text-xs bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded border border-blue-500/20">FCU</span>';
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-medium text-white">${u.name}</div>
+                        <div class="mt-0.5">${typeBadge}</div>
+                    </td>
+                    <td class="p-3 font-mono text-cyan-400">${u.btu.toLocaleString()} Btu/h</td>
+                    <td class="p-3 font-mono text-amber-400">${u.compWatt.toFixed(2)} W</td>
+                    <td class="p-3 font-mono text-blue-400">${u.fanWatt > 0 ? u.fanWatt.toFixed(2) + ' W' : '-'}</td>
+                    <td class="p-3 text-center no-print">
+                        <button onclick="deleteUnit(${u.id})" class="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/20 transition" title="Hapus Unit">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Update Ringkasan (Summary) & Animasi Kelistrikan
+        function updateSummary() {
+            const totalUnits = units.length;
+            const totalBtu = units.reduce((acc, curr) => acc + curr.btu, 0);
+            const totalCompWatt = units.reduce((acc, curr) => acc + curr.compWatt, 0);
+            const totalFanWatt = units.reduce((acc, curr) => acc + curr.fanWatt, 0);
+            const totalAllWatt = totalCompWatt + totalFanWatt;
+            const totalKW = totalAllWatt / 1000;
+
+            document.getElementById('sumTotalUnits').innerText = `${totalUnits} Unit`;
+            document.getElementById('sumTotalBtu').innerText = `${totalBtu.toLocaleString()} Btu/h`;
+            document.getElementById('sumTotalCompWatt').innerText = `${totalCompWatt.toFixed(2)} Watt`;
+            document.getElementById('sumTotalFanWatt').innerText = `${totalFanWatt.toFixed(2)} Watt`;
+            document.getElementById('sumTotalAllWatt').innerText = `${totalAllWatt.toFixed(2)} Watt`;
+            document.getElementById('sumTotalKW').innerText = `(${totalKW.toFixed(3)} kW)`;
+
+            // Update nilai teks di animasi SVG kelistrikan
+            document.getElementById('animCompWatt').innerText = `${totalCompWatt.toFixed(1)} W`;
+            document.getElementById('animFanWatt').innerText = `${totalFanWatt.toFixed(1)} W`;
+
+            // Dinamika kecepatan animasi dash berdasarkan total watt
+            const path1 = document.getElementById('circuitPath1');
+            const path2 = document.getElementById('circuitPath2');
+            if (path1 && path2) {
+                const speed1 = Math.max(0.3, 1.2 - (totalCompWatt / 10000));
+                const speed2 = Math.max(0.3, 1.0 - (totalFanWatt / 2000));
+                path1.style.animationDuration = `${speed1}s`;
+                path2.style.animationDuration = `${speed2}s`;
+            }
+        }
+
+        // Cetak / Print PDF Handler
+        document.getElementById('btnPrintPDF').addEventListener('click', () => {
+            const clientName = document.getElementById('clientNameInput').value.trim() || 'Tanpa Nama Pemesan';
+            const projectName = document.getElementById('projectNameInput').value.trim() || 'Tanpa Nama Proyek';
+
+            document.getElementById('printClientName').innerText = clientName;
+            document.getElementById('printProjectName').innerText = projectName;
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
+
+            window.print();
+        });
+
+        // Export CSV
+        document.getElementById('btnExportCSV').addEventListener('click', () => {
+            if (units.length === 0) {
+                alert('Tidak ada data untuk diexport.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,No,Nama Ruangan,Tipe,Btu/h,Daya Kompressor (Watt),Daya Fan (Watt)\n";
+            units.forEach((u, i) => {
+                csvContent += `${i+1},"${u.name}",${u.type},${u.btu},${u.compWatt.toFixed(2)},${u.fanWatt.toFixed(2)}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "summary_kapasitas_daya_ac.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
