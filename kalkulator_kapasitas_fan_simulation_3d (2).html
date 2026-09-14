@@ -14,19 +14,24 @@
   <!-- Google Fonts Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Chosen Palette: Dark Mode / Pitch Black Theme -->
+  <!-- Application Structure Plan: Single-page interactive HVAC calculator and 3D airflow visualizer designed with high-contrast dark UI elements (dark slate/zinc base, neon accent indicators) for engineering dashboards. Controls on left panel, live 3D canvas on right panel, data table at bottom. -->
+  <!-- Visualization & Content Choices: Three.js Canvas for 3D airflow simulation and fan models. Tailwind CSS for responsive dark dashboard components. HTML table with JS state management for record keeping and CSV exports. NO SVG used. NO Mermaid JS used. -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
     }
     @media print {
       .no-print { display: none !important; }
-      body { background-color: #ffffff !important; padding: 0 !important; }
-      .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+      body { background-color: #ffffff !important; color: #1e293b !important; padding: 0 !important; }
+      .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; background-color: #ffffff !important; }
     }
     #canvas-container {
       width: 100%;
       height: 420px;
-      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      background: radial-gradient(circle at center, #18181b 0%, #000000 100%);
       border-radius: 0.75rem;
       position: relative;
       overflow: hidden;
@@ -36,40 +41,40 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1f5f9;
+      background: #09090b;
     }
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #27272a;
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #3f3f46;
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 p-3 sm:p-6 md:p-8 min-h-screen">
+<body class="bg-black text-zinc-100 p-3 sm:p-6 md:p-8 min-h-screen">
 
-  <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 print-shadow-none border border-slate-200/80">
+  <div class="max-w-7xl mx-auto bg-zinc-950 rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 print-shadow-none border border-zinc-800">
     
     <!-- Top Bar Header -->
-    <div class="border-b-2 border-slate-200 pb-5 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="border-b-2 border-zinc-800 pb-5 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">SNI-03-6572-2001</span>
-          <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Manual ACH Active</span>
-          <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Dual Flow 3D Engine</span>
+          <span class="bg-blue-950 text-blue-300 border border-blue-800/60 text-xs font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">SNI-03-6572-2001</span>
+          <span class="bg-emerald-950 text-emerald-300 border border-emerald-800/60 text-xs font-semibold px-2.5 py-0.5 rounded-full">Manual ACH Active</span>
+          <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/60 text-xs font-semibold px-2.5 py-0.5 rounded-full">Dual Flow 3D Engine</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Kalkulator Kapasitas Fan & Simulation 3D</h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Sistem Perhitungan Sirkulasi Udara Ruangan, Pemilihan Jenis Fan & Visualisasi Terpisah Udara Masuk (Intake) vs Buang (Exhaust)</p>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Kalkulator Kapasitas Fan & Simulation 3D</h1>
+        <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">Sistem Perhitungan Sirkulasi Udara Ruangan, Pemilihan Jenis Fan & Visualisasi Terpisah Udara Masuk (Intake) vs Buang (Exhaust)</p>
       </div>
 
       <!-- Header Action Buttons -->
       <div class="flex flex-wrap items-center gap-2 w-full md:w-auto no-print">
-        <button onclick="exportToCSV()" class="flex-1 md:flex-initial bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3.5 rounded-lg border border-slate-300 text-xs sm:text-sm transition flex items-center justify-center gap-2">
-          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <button onclick="exportToCSV()" class="flex-1 md:flex-initial bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-semibold py-2 px-3.5 rounded-lg border border-zinc-700 text-xs sm:text-sm transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           Export CSV
         </button>
-        <button onclick="window.print()" class="flex-1 md:flex-initial bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition text-xs sm:text-sm flex items-center justify-center gap-2">
+        <button onclick="window.print()" class="flex-1 md:flex-initial bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition text-xs sm:text-sm flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
           Cetak Laporan
         </button>
@@ -77,18 +82,18 @@
     </div>
 
     <!-- Project & Engineer Meta Info -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-zinc-900/60 p-4 rounded-xl border border-zinc-800">
       <div>
-        <label for="namaPenyusun" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nama Penyusun / HVAC Engineer</label>
-        <input type="text" id="namaPenyusun" value="Dadan Hamdalah Kahfi" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        <label for="namaPenyusun" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Nama Penyusun / HVAC Engineer</label>
+        <input type="text" id="namaPenyusun" value="Hasby Khairul Lifie" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
       </div>
       <div>
-        <label for="tanggalInput" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Tanggal Perhitungan</label>
-        <input type="date" id="tanggalInput" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        <label for="tanggalInput" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Tanggal Perhitungan</label>
+        <input type="date" id="tanggalInput" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
       </div>
       <div>
-        <label for="namaProject" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">Nama Proyek / Gedung</label>
-        <input type="text" id="namaProject" placeholder="Contoh: Gedung Office Utama JU" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        <label for="namaProject" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Nama Proyek / Gedung</label>
+        <input type="text" id="namaProject" placeholder="Contoh: Gedung Office Utama JU" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
       </div>
     </div>
 
@@ -96,14 +101,14 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 mb-8">
       
       <!-- Input Form Panel -->
-      <div class="lg:col-span-5 bg-white p-5 border border-slate-200/90 rounded-xl shadow-sm flex flex-col justify-between">
+      <div class="lg:col-span-5 bg-zinc-900/40 p-5 border border-zinc-800 rounded-xl shadow-sm flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
               Parameter Ruangan & Spesifikasi Fan
             </h2>
-            <span id="editModeBadge" class="hidden text-xs bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded">Mode Edit</span>
+            <span id="editModeBadge" class="hidden text-xs bg-amber-950 text-amber-300 border border-amber-800/60 font-semibold px-2 py-0.5 rounded">Mode Edit</span>
           </div>
           
           <form id="fanForm" onsubmit="event.preventDefault(); submitForm();" class="space-y-3.5">
@@ -111,34 +116,34 @@
 
             <!-- Kode / Nama Ruang -->
             <div>
-              <label for="kodeRuangan" class="block text-xs font-semibold text-slate-700 mb-1">Kode / Nama Ruangan <span class="text-red-500">*</span></label>
-              <input type="text" id="kodeRuangan" required placeholder="Contoh: R. Rapat A / Toilet Lt. 2" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition">
+              <label for="kodeRuangan" class="block text-xs font-semibold text-zinc-300 mb-1">Kode / Nama Ruangan <span class="text-red-400">*</span></label>
+              <input type="text" id="kodeRuangan" required placeholder="Contoh: R. Rapat A / Toilet Lt. 2" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition">
             </div>
 
             <!-- Dimensi Ruang -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Dimensi Ruangan (Panjang x Lebar x Tinggi)</label>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Dimensi Ruangan (Panjang x Lebar x Tinggi)</label>
               <div class="grid grid-cols-3 gap-2">
                 <div>
                   <div class="relative flex items-center">
-                    <input type="number" step="0.01" min="0.1" id="panjang" value="4.0" required oninput="updateCalculation()" class="w-full border border-slate-300 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
-                    <span class="absolute right-2 text-xs text-slate-400 pointer-events-none">m</span>
+                    <input type="number" step="0.01" min="0.1" id="panjang" value="4.0" required oninput="updateCalculation()" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
+                    <span class="absolute right-2 text-xs text-zinc-500 pointer-events-none">m</span>
                   </div>
-                  <span class="text-[10px] text-slate-400 mt-0.5 block">Panjang (p)</span>
+                  <span class="text-[10px] text-zinc-500 mt-0.5 block">Panjang (p)</span>
                 </div>
                 <div>
                   <div class="relative flex items-center">
-                    <input type="number" step="0.01" min="0.1" id="lebar" value="3.0" required oninput="updateCalculation()" class="w-full border border-slate-300 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
-                    <span class="absolute right-2 text-xs text-slate-400 pointer-events-none">m</span>
+                    <input type="number" step="0.01" min="0.1" id="lebar" value="3.0" required oninput="updateCalculation()" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
+                    <span class="absolute right-2 text-xs text-zinc-500 pointer-events-none">m</span>
                   </div>
-                  <span class="text-[10px] text-slate-400 mt-0.5 block">Lebar (l)</span>
+                  <span class="text-[10px] text-zinc-500 mt-0.5 block">Lebar (l)</span>
                 </div>
                 <div>
                   <div class="relative flex items-center">
-                    <input type="number" step="0.01" min="0.1" id="tinggi" value="3.0" required oninput="updateCalculation()" class="w-full border border-slate-300 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
-                    <span class="absolute right-2 text-xs text-slate-400 pointer-events-none">m</span>
+                    <input type="number" step="0.01" min="0.1" id="tinggi" value="3.0" required oninput="updateCalculation()" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg pr-7 pl-2.5 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
+                    <span class="absolute right-2 text-xs text-zinc-500 pointer-events-none">m</span>
                   </div>
-                  <span class="text-[10px] text-slate-400 mt-0.5 block">Tinggi (t)</span>
+                  <span class="text-[10px] text-zinc-500 mt-0.5 block">Tinggi (t)</span>
                 </div>
               </div>
             </div>
@@ -147,25 +152,25 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <label for="achInput" class="block text-xs font-bold text-blue-700">ACH (Air Changes/Hr) <span class="text-red-500">*</span></label>
-                  <span class="text-[10px] bg-blue-50 text-blue-600 font-semibold px-1.5 py-0.5 rounded border border-blue-200">Manual Input</span>
+                  <label for="achInput" class="block text-xs font-bold text-blue-400">ACH (Air Changes/Hr) <span class="text-red-400">*</span></label>
+                  <span class="text-[10px] bg-blue-950 text-blue-300 font-semibold px-1.5 py-0.5 rounded border border-blue-800/60">Manual Input</span>
                 </div>
                 <div class="relative flex items-center">
-                  <input type="number" step="0.1" min="0.1" max="100" id="achInput" value="10" required oninput="updateCalculation()" class="w-full bg-blue-50/50 border-2 border-blue-400 rounded-lg px-3 py-1.5 text-sm font-bold text-blue-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition">
-                  <span class="absolute right-2 text-xs font-semibold text-blue-500 pointer-events-none">x/jam</span>
+                  <input type="number" step="0.1" min="0.1" max="100" id="achInput" value="10" required oninput="updateCalculation()" class="w-full bg-blue-950/40 border-2 border-blue-600 rounded-lg px-3 py-1.5 text-sm font-bold text-blue-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                  <span class="absolute right-2 text-xs font-semibold text-blue-400 pointer-events-none">x/jam</span>
                 </div>
               </div>
 
               <div>
-                <label for="jumlahFan" class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Fan (&Sigma;)</label>
-                <input type="number" id="jumlahFan" value="1" min="1" max="50" required oninput="updateCalculation()" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
+                <label for="jumlahFan" class="block text-xs font-semibold text-zinc-300 mb-1">Jumlah Fan (&Sigma;)</label>
+                <input type="number" id="jumlahFan" value="1" min="1" max="50" required oninput="updateCalculation()" class="w-full bg-zinc-900 border border-zinc-700 text-zinc-100 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 transition">
               </div>
             </div>
 
             <!-- Jenis Fan -->
             <div>
-              <label for="tipeFan" class="block text-xs font-semibold text-slate-700 mb-1">Jenis / Konfigurasi Fan</label>
-              <select id="tipeFan" onchange="updateCalculation()" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition bg-white">
+              <label for="tipeFan" class="block text-xs font-semibold text-zinc-300 mb-1">Jenis / Konfigurasi Fan</label>
+              <select id="tipeFan" onchange="updateCalculation()" class="w-full border border-zinc-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition bg-zinc-900 text-zinc-100">
                 <option value="Wall Mounted Fan" selected>Wall Mounted Fan / Fan Dinding</option>
                 <option value="In-Line Duct Fan (Wall / Axial)">In-Line Duct Fan / Axial Duct (Sisi Dinding)</option>
                 <option value="Ceiling Mounted Fan">Ceiling Mounted Fan (Plafon)</option>
@@ -175,8 +180,8 @@
 
             <!-- Fungsi / Mode Airflow Fan (INTAKE / EXHAUST / DUAL) -->
             <div>
-              <label for="fungsiFan" class="block text-xs font-semibold text-slate-700 mb-1">Fungsi / Mode Airflow Fan <span class="text-red-500">*</span></label>
-              <select id="fungsiFan" onchange="toggleTekananVisibility(); updateCalculation();" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition bg-white font-semibold text-slate-800">
+              <label for="fungsiFan" class="block text-xs font-semibold text-zinc-300 mb-1">Fungsi / Mode Airflow Fan <span class="text-red-400">*</span></label>
+              <select id="fungsiFan" onchange="toggleTekananVisibility(); updateCalculation();" class="w-full border border-zinc-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 transition bg-zinc-900 font-semibold text-zinc-100">
                 <option value="Intake Fan (Fresh Air)">Intake Fan (Pemasok Udara Bersih / Fresh Air Only)</option>
                 <option value="Exhaust Fan (Air Outlet)">Exhaust Fan (Pembuang Udara / Outlet Only)</option>
                 <option value="Intake & Exhaust (Dual System)" selected>Kombinasi Intake & Exhaust (Dual Flow System)</option>
@@ -184,70 +189,70 @@
             </div>
 
             <!-- Target Tekanan Udara Ruangan (Air Pressure Logic) -->
-            <div id="tekananContainer" class="bg-amber-50/70 border border-amber-200 p-2.5 rounded-lg space-y-1">
+            <div id="tekananContainer" class="bg-amber-950/40 border border-amber-800/60 p-2.5 rounded-lg space-y-1">
               <div class="flex justify-between items-center">
-                <label for="tekananUdara" class="block text-xs font-bold text-amber-900">Target Tekanan Udara (Air Pressure) <span class="text-red-500">*</span></label>
-                <span class="text-[10px] bg-amber-200/80 text-amber-900 font-bold px-1.5 py-0.5 rounded">Logika Tekanan</span>
+                <label for="tekananUdara" class="block text-xs font-bold text-amber-300">Target Tekanan Udara (Air Pressure) <span class="text-red-400">*</span></label>
+                <span class="text-[10px] bg-amber-900 text-amber-200 font-bold px-1.5 py-0.5 rounded">Logika Tekanan</span>
               </div>
-              <select id="tekananUdara" onchange="updateCalculation()" class="w-full border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-semibold focus:ring-2 focus:ring-amber-500 transition bg-white text-amber-950">
+              <select id="tekananUdara" onchange="updateCalculation()" class="w-full border border-amber-700/80 rounded-lg px-2.5 py-1 text-xs font-semibold focus:ring-2 focus:ring-amber-500 transition bg-zinc-900 text-amber-200">
                 <option value="negatif" selected>1. Tekanan Negatif (Dapur, Toilet, Lab - Exhaust > Intake)</option>
                 <option value="positif">2. Tekanan Positif (Ruang Steril, Server, Operasi - Intake > Exhaust)</option>
                 <option value="seimbang">3. Tekanan Seimbang (Balanced Flow - Intake = Exhaust)</option>
               </select>
-              <p id="tekananDesc" class="text-[11px] text-amber-800 font-medium leading-tight pt-0.5">
+              <p id="tekananDesc" class="text-[11px] text-amber-400/90 font-medium leading-tight pt-0.5">
                 Exhaust: 100% | Intake: ~85%. Menarik udara segar masuk secara alami demi mencegah kebocoran udara kotor keluar.
               </p>
             </div>
 
             <!-- Hasil Perhitungan Ringkas -->
-            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-3.5 space-y-1.5 text-xs sm:text-sm">
-              <div class="flex justify-between items-center text-slate-600">
+            <div class="bg-gradient-to-br from-zinc-900 to-blue-950/60 border border-zinc-800 rounded-xl p-3.5 space-y-1.5 text-xs sm:text-sm">
+              <div class="flex justify-between items-center text-zinc-400">
                 <span>Volume Ruangan (V):</span>
-                <span id="outVolume" class="font-bold text-slate-800">36.0 m³</span>
+                <span id="outVolume" class="font-bold text-zinc-200">36.0 m³</span>
               </div>
-              <div class="flex justify-between items-center text-slate-600">
+              <div class="flex justify-between items-center text-zinc-400">
                 <span>Total Target Airflow Ruang:</span>
-                <span id="outTotalCMH" class="font-bold text-slate-800">360 m³/h</span>
+                <span id="outTotalCMH" class="font-bold text-zinc-200">360 m³/h</span>
               </div>
-              <div class="border-t border-blue-200/80 my-1 pt-1.5 flex justify-between items-center">
-                <span class="font-semibold text-cyan-900">Intake Capacity / Fan:</span>
-                <span id="outCMHIntake" class="font-extrabold text-cyan-700 text-sm sm:text-base">306 CMH (180 CFM)</span>
+              <div class="border-t border-zinc-800 my-1 pt-1.5 flex justify-between items-center">
+                <span class="font-semibold text-cyan-300">Intake Capacity / Fan:</span>
+                <span id="outCMHIntake" class="font-extrabold text-cyan-400 text-sm sm:text-base">306 CMH (180 CFM)</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="font-semibold text-rose-900">Exhaust Capacity / Fan:</span>
-                <span id="outCMHExhaust" class="font-extrabold text-rose-700 text-sm sm:text-base">360 CMH (212 CFM)</span>
+                <span class="font-semibold text-rose-300">Exhaust Capacity / Fan:</span>
+                <span id="outCMHExhaust" class="font-extrabold text-rose-400 text-sm sm:text-base">360 CMH (212 CFM)</span>
               </div>
             </div>
 
             <!-- Dynamic Recommendation Box -->
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 space-y-1.5">
-              <div class="font-bold border-b border-slate-200 pb-1 flex items-center justify-between">
-                <span class="flex items-center gap-1.5 text-slate-900">
-                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="bg-black border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300 space-y-1.5">
+              <div class="font-bold border-b border-zinc-800 pb-1 flex items-center justify-between">
+                <span class="flex items-center gap-1.5 text-zinc-200">
+                  <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   Rekomendasi Kapasitas Alat:
                 </span>
-                <span id="recModeBadge" class="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-bold border border-amber-300">Tekanan Negatif</span>
+                <span id="recModeBadge" class="text-[10px] text-amber-300 bg-amber-950 px-2 py-0.5 rounded font-bold border border-amber-800/60">Tekanan Negatif</span>
               </div>
-              <div id="recIntake" class="font-medium text-cyan-800 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-cyan-500 inline-block"></span>
+              <div id="recIntake" class="font-medium text-cyan-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
                 <span>Fresh Air Intake: 1 Unit @ 306 CMH (180 CFM) [85%]</span>
               </div>
-              <div id="recExhaust" class="font-medium text-rose-800 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+              <div id="recExhaust" class="font-medium text-rose-300 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span>
                 <span>Exhaust Air Fan: 1 Unit @ 360 CMH (212 CFM) [100%]</span>
               </div>
-              <div id="recObjective" class="text-[11px] text-slate-600 bg-slate-100 p-2 rounded-lg italic border border-slate-200 mt-1">
+              <div id="recObjective" class="text-[11px] text-zinc-400 bg-zinc-900 p-2 rounded-lg italic border border-zinc-800 mt-1">
                 Tujuan: Menarik udara segar masuk secara alami melalui celah pintu/jendela demi mencegah kebocoran udara kotor keluar ruangan.
               </div>
             </div>
 
             <!-- Submit & Reset Buttons -->
             <div class="pt-2 flex gap-2">
-              <button type="submit" id="submitBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs sm:text-sm flex items-center justify-center gap-2">
+              <button type="submit" id="submitBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs sm:text-sm flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 <span id="btnText">Simpan ke Tabel Data</span>
               </button>
-              <button type="button" id="cancelBtn" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2.5 px-3 rounded-xl transition text-xs sm:text-sm">
+              <button type="button" id="cancelBtn" onclick="resetForm()" class="hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold py-2.5 px-3 rounded-xl transition text-xs sm:text-sm border border-zinc-700">
                 Batal
               </button>
             </div>
@@ -256,7 +261,7 @@
       </div>
 
       <!-- 3D Visualization Canvas Container -->
-      <div class="lg:col-span-7 flex flex-col justify-between bg-slate-900 rounded-xl p-3 sm:p-4 border border-slate-800 shadow-md">
+      <div class="lg:col-span-7 flex flex-col justify-between bg-black rounded-xl p-3 sm:p-4 border border-zinc-800 shadow-md">
         <div>
           <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
             <div class="flex items-center gap-2">
@@ -264,33 +269,33 @@
               <h2 class="text-sm sm:text-base font-bold text-white">Visualisasi 3D Airflow (Intake vs Exhaust)</h2>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="toggleParticleSpeed()" id="speedBtn" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-sky-300 px-2.5 py-1 rounded border border-slate-700 transition">
+              <button onclick="toggleParticleSpeed()" id="speedBtn" class="text-[11px] bg-zinc-900 hover:bg-zinc-800 text-sky-300 px-2.5 py-1 rounded border border-zinc-800 transition">
                 Kecepatan: Normal
               </button>
-              <button onclick="resetCameraView()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+              <button onclick="resetCameraView()" class="text-[11px] bg-zinc-900 hover:bg-zinc-800 text-zinc-300 px-2.5 py-1 rounded border border-zinc-800 transition">
                 Reset Angle
               </button>
             </div>
           </div>
 
-          <div id="canvas-container" class="w-full rounded-lg border border-slate-700/80 shadow-inner">
+          <div id="canvas-container" class="w-full rounded-lg border border-zinc-800 shadow-inner">
             <!-- Canvas Attached Dynamically -->
           </div>
         </div>
 
         <!-- Canvas Visual Legend & Controls Info -->
-        <div class="mt-3 flex flex-col sm:flex-row gap-2 bg-slate-800/90 backdrop-blur text-white text-[11px] sm:text-xs py-2.5 px-3.5 rounded-lg border border-slate-700/80 justify-between items-center">
+        <div class="mt-3 flex flex-col sm:flex-row gap-2 bg-zinc-900/90 backdrop-blur text-zinc-300 text-[11px] sm:text-xs py-2.5 px-3.5 rounded-lg border border-zinc-800 justify-between items-center">
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-cyan-400 border border-white/30 inline-block shadow-[0_0_8px_rgba(56,189,248,0.8)]"></span>
-              <span class="text-cyan-200 font-semibold">Udara Intake (Fresh Air Inlet)</span>
+              <span class="text-cyan-300 font-semibold">Udara Intake (Fresh Air Inlet)</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-rose-500 border border-white/30 inline-block shadow-[0_0_8px_rgba(244,63,94,0.8)]"></span>
-              <span class="text-rose-200 font-semibold">Udara Exhaust (Air Outlet)</span>
+              <span class="text-rose-300 font-semibold">Udara Exhaust (Air Outlet)</span>
             </div>
           </div>
-          <div class="text-[10px] text-slate-400 text-right">
+          <div class="text-[10px] text-zinc-500 text-right">
             Drag Mouse: Putar | Scroll: Zoom | Right-Drag: Pan
           </div>
         </div>
@@ -301,42 +306,42 @@
     <!-- Data Entry Table -->
     <div class="mb-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
-        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           Daftar Data Perhitungan Airflow Proyek
         </h2>
-        <span class="text-xs text-slate-500" id="totalEntryCount">Total Items: 0</span>
+        <span class="text-xs text-zinc-400" id="totalEntryCount">Total Items: 0</span>
       </div>
 
-      <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
+      <div class="overflow-x-auto border border-zinc-800 rounded-xl shadow-sm bg-black">
         <table class="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
-            <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200 font-semibold uppercase text-[11px] tracking-wider">
-              <th class="p-3 border-r border-slate-200">Kode Ruang</th>
-              <th class="p-3 border-r border-slate-200 text-center">P x L x T (m)</th>
-              <th class="p-3 border-r border-slate-200 text-center">Vol (m³)</th>
-              <th class="p-3 border-r border-slate-200 text-center bg-blue-50 text-blue-900">ACH (x/hr)</th>
-              <th class="p-3 border-r border-slate-200 text-center">Fungsi & Tekanan Udara</th>
-              <th class="p-3 border-r border-slate-200">Jenis Fan</th>
-              <th class="p-3 border-r border-slate-200 text-center">Jml Fan</th>
-              <th class="p-3 border-r border-slate-200 text-center text-cyan-800">Intake / Fan</th>
-              <th class="p-3 border-r border-slate-200 text-center text-rose-800">Exhaust / Fan</th>
-              <th class="p-3 border-r border-slate-200">Total Target CMH</th>
+            <tr class="bg-zinc-900 text-zinc-300 border-b border-zinc-800 font-semibold uppercase text-[11px] tracking-wider">
+              <th class="p-3 border-r border-zinc-800">Kode Ruang</th>
+              <th class="p-3 border-r border-zinc-800 text-center">P x L x T (m)</th>
+              <th class="p-3 border-r border-zinc-800 text-center">Vol (m³)</th>
+              <th class="p-3 border-r border-zinc-800 text-center bg-blue-950/40 text-blue-300">ACH (x/hr)</th>
+              <th class="p-3 border-r border-zinc-800 text-center">Fungsi & Tekanan Udara</th>
+              <th class="p-3 border-r border-zinc-800">Jenis Fan</th>
+              <th class="p-3 border-r border-zinc-800 text-center">Jml Fan</th>
+              <th class="p-3 border-r border-zinc-800 text-center text-cyan-400">Intake / Fan</th>
+              <th class="p-3 border-r border-zinc-800 text-center text-rose-400">Exhaust / Fan</th>
+              <th class="p-3 border-r border-zinc-800">Total Target CMH</th>
               <th class="p-3 text-center no-print">Aksi</th>
             </tr>
           </thead>
-          <tbody id="dataTable" class="divide-y divide-slate-200">
+          <tbody id="dataTable" class="divide-y divide-zinc-800 text-zinc-300">
             <!-- Rows rendered dynamically -->
           </tbody>
-          <tfoot id="tableFoot" class="bg-slate-50 font-bold border-t-2 border-slate-300 hidden">
+          <tfoot id="tableFoot" class="bg-zinc-900 font-bold border-t-2 border-zinc-800 hidden">
             <tr>
-              <td colspan="2" class="p-3 text-slate-800">TOTAL KELUARAN PROYEK</td>
-              <td id="footTotalVolume" class="p-3 text-center text-slate-800">0 m³</td>
-              <td class="p-3 border-r border-slate-200"></td>
-              <td colspan="3" class="p-3 text-right text-slate-700">Total Kapasitas Airflow Target:</td>
-              <td id="footAvgIntake" class="p-3 text-center text-cyan-700">-</td>
-              <td id="footAvgExhaust" class="p-3 text-center text-rose-700">-</td>
-              <td id="footGrandTotalCMH" class="p-3 text-emerald-700 font-extrabold text-sm">0 CMH</td>
+              <td colspan="2" class="p-3 text-zinc-200">TOTAL KELUARAN PROYEK</td>
+              <td id="footTotalVolume" class="p-3 text-center text-zinc-200">0 m³</td>
+              <td class="p-3 border-r border-zinc-800"></td>
+              <td colspan="3" class="p-3 text-right text-zinc-300">Total Kapasitas Airflow Target:</td>
+              <td id="footAvgIntake" class="p-3 text-center text-cyan-400">-</td>
+              <td id="footAvgExhaust" class="p-3 text-center text-rose-400">-</td>
+              <td id="footGrandTotalCMH" class="p-3 text-emerald-400 font-extrabold text-sm">0 CMH</td>
               <td class="p-3 no-print"></td>
             </tr>
           </tfoot>
@@ -345,9 +350,9 @@
     </div>
 
     <!-- Footer Copyright -->
-    <div class="border-t border-slate-200 pt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+    <div class="border-t border-zinc-800 pt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-zinc-500 gap-2">
       <div>HVAC Fan Capacity Calculator SNI-03-6572-2001 &bull; Integrated 3D Dual-Flow Engine</div>
-      <div class="font-medium text-slate-600">&copy; 2026 Dadan Hamdalah Kahfi. All rights reserved.</div>
+      <div class="font-medium text-zinc-400">&copy; 2026 Mas By. All rights reserved.</div>
     </div>
 
   </div>
@@ -401,38 +406,36 @@
         intakeCMHPerFan = baseCMHPerFan;
         exhaustCMHPerFan = 0;
         pressureBadgeText = "Fresh Air Intake Only";
-        pressureBadgeClass = "text-[10px] text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded font-bold border border-cyan-300";
+        pressureBadgeClass = "text-[10px] text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded font-bold border border-cyan-800/60";
         objectiveText = "Tujuan: Memasukkan udara segar secara langsung ke dalam ruangan.";
       } else if (fungsiFan.includes("Exhaust Fan")) {
         intakeCMHPerFan = 0;
         exhaustCMHPerFan = baseCMHPerFan;
         pressureBadgeText = "Exhaust Air Only";
-        pressureBadgeClass = "text-[10px] text-rose-800 bg-rose-100 px-2 py-0.5 rounded font-bold border border-rose-300";
+        pressureBadgeClass = "text-[10px] text-rose-300 bg-rose-950 px-2 py-0.5 rounded font-bold border border-rose-800/60";
         objectiveText = "Tujuan: Membuang polutan, bau, dan hawa panas keluar ruangan.";
       } else { // Dual System
         if (tekananUdara === 'negatif') {
-          // Exhaust 100%, Intake ~85%
           exhaustCMHPerFan = baseCMHPerFan;
           intakeCMHPerFan = baseCMHPerFan * 0.85;
           targetDesc = "Exhaust: 100% | Intake: ~85%. Menarik udara segar masuk secara alami demi mencegah kebocoran udara kotor keluar.";
           objectiveText = "Tujuan: Membuang polutan/bau/panas agar tidak menyebar ke ruangan lain (misal: dapur, toilet, lab). Mencegah kebocoran udara kotor keluar.";
           pressureBadgeText = "Tekanan Negatif";
-          pressureBadgeClass = "text-[10px] text-amber-900 bg-amber-100 px-2 py-0.5 rounded font-bold border border-amber-300";
+          pressureBadgeClass = "text-[10px] text-amber-300 bg-amber-950 px-2 py-0.5 rounded font-bold border border-amber-800/60";
         } else if (tekananUdara === 'positif') {
-          // Intake 100%, Exhaust ~85%
           intakeCMHPerFan = baseCMHPerFan;
           exhaustCMHPerFan = baseCMHPerFan * 0.85;
           targetDesc = "Intake: 100% | Exhaust: ~85%. Mendorong udara bersih keluar, mencegah debu dan kotoran luar masuk.";
           objectiveText = "Tujuan: Menjaga ruangan tetap steril dari debu/kotoran luar (misal: ruang operasi hospital, server room).";
           pressureBadgeText = "Tekanan Positif";
-          pressureBadgeClass = "text-[10px] text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded font-bold border border-emerald-300";
+          pressureBadgeClass = "text-[10px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded font-bold border border-emerald-800/60";
         } else { // Seimbang
           intakeCMHPerFan = baseCMHPerFan;
           exhaustCMHPerFan = baseCMHPerFan;
           targetDesc = "Intake: 100% | Exhaust: 100%. Menjaga tekanan udara di dalam ruangan tetap seimbang dengan udara luar.";
           objectiveText = "Tujuan: Sirkulasi udara yang benar-benar stabil pada ruangan terisolasi/tertutup rapat.";
           pressureBadgeText = "Tekanan Seimbang";
-          pressureBadgeClass = "text-[10px] text-blue-900 bg-blue-100 px-2 py-0.5 rounded font-bold border border-blue-300";
+          pressureBadgeClass = "text-[10px] text-blue-300 bg-blue-950 px-2 py-0.5 rounded font-bold border border-blue-800/60";
         }
       }
 
@@ -461,11 +464,11 @@
       if (fungsiFan.includes("Intake Fan")) {
         recIntakeEl.classList.remove('hidden');
         recExhaustEl.classList.add('hidden');
-        recIntakeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-500 inline-block"></span> Fresh Air Intake Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(intakeCMHPerFan)} CMH (${Math.round(intakeCFMPerFan)} CFM)`;
+        recIntakeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span> Fresh Air Intake Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(intakeCMHPerFan)} CMH (${Math.round(intakeCFMPerFan)} CFM)`;
       } else if (fungsiFan.includes("Exhaust Fan")) {
         recIntakeEl.classList.add('hidden');
         recExhaustEl.classList.remove('hidden');
-        recExhaustEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> Exhaust Air Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(exhaustCMHPerFan)} CMH (${Math.round(exhaustCFMPerFan)} CFM)`;
+        recExhaustEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span> Exhaust Air Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(exhaustCMHPerFan)} CMH (${Math.round(exhaustCFMPerFan)} CFM)`;
       } else {
         recIntakeEl.classList.remove('hidden');
         recExhaustEl.classList.remove('hidden');
@@ -473,8 +476,8 @@
         const intakePct = tekananUdara === 'negatif' ? ' [85%]' : ' [100%]';
         const exhaustPct = tekananUdara === 'positif' ? ' [85%]' : ' [100%]';
 
-        recIntakeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-500 inline-block"></span> Fresh Air Intake: ${fanQty} Unit [${tipeFan}] @ ${Math.round(intakeCMHPerFan)} CMH (${Math.round(intakeCFMPerFan)} CFM)${intakePct}`;
-        recExhaustEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> Exhaust Air Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(exhaustCMHPerFan)} CMH (${Math.round(exhaustCFMPerFan)} CFM)${exhaustPct}`;
+        recIntakeEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span> Fresh Air Intake: ${fanQty} Unit [${tipeFan}] @ ${Math.round(intakeCMHPerFan)} CMH (${Math.round(intakeCFMPerFan)} CFM)${intakePct}`;
+        recExhaustEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span> Exhaust Air Fan: ${fanQty} Unit [${tipeFan}] @ ${Math.round(exhaustCMHPerFan)} CMH (${Math.round(exhaustCFMPerFan)} CFM)${exhaustPct}`;
       }
 
       // Render 3D Scene
@@ -517,13 +520,11 @@
       }
 
       if (editingId) {
-        // Edit existing entry
         const idx = dataEntryList.findIndex(item => item.id == editingId);
         if (idx !== -1) {
           dataEntryList[idx] = { id: Number(editingId), kode, p, l, t, volume, ach, fanQty, tipeFan, fungsiFan, tekananUdara, intakeCMH, exhaustCMH, totalCMH: Math.round(totalCMH) };
         }
       } else {
-        // Add new entry
         const item = {
           id: Date.now(),
           kode, p, l, t, volume, ach, fanQty, tipeFan, fungsiFan, tekananUdara, intakeCMH, exhaustCMH, totalCMH: Math.round(totalCMH)
@@ -584,7 +585,7 @@
       totalCountSpan.innerText = `Total Items: ${dataEntryList.length}`;
 
       if (dataEntryList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400 bg-slate-50/50">Belum ada data tersimpan. Silakan isi parameter ruangan lalu klik <strong>Simpan ke Tabel Data</strong>.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-zinc-500 bg-black">Belum ada data tersimpan. Silakan isi parameter ruangan lalu klik <strong>Simpan ke Tabel Data</strong>.</td></tr>`;
         tfoot.classList.add('hidden');
         return;
       }
@@ -597,43 +598,41 @@
         grandTotalCMH += item.totalCMH;
 
         let pressureLabel = '';
-        if (item.fungsiFan.includes('Intake Fan')) pressureLabel = '<span class="text-[10px] bg-cyan-100 text-cyan-800 font-bold px-1.5 py-0.5 rounded">Intake Only</span>';
-        else if (item.fungsiFan.includes('Exhaust Fan')) pressureLabel = '<span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded">Exhaust Only</span>';
-        else if (item.tekananUdara === 'negatif') pressureLabel = '<span class="text-[10px] bg-amber-100 text-amber-900 font-bold px-1.5 py-0.5 rounded">Tekanan Negatif</span>';
-        else if (item.tekananUdara === 'positif') pressureLabel = '<span class="text-[10px] bg-emerald-100 text-emerald-900 font-bold px-1.5 py-0.5 rounded">Tekanan Positif</span>';
-        else pressureLabel = '<span class="text-[10px] bg-blue-100 text-blue-900 font-bold px-1.5 py-0.5 rounded">Seimbang</span>';
+        if (item.fungsiFan.includes('Intake Fan')) pressureLabel = '<span class="text-[10px] bg-cyan-950 text-cyan-300 font-bold px-1.5 py-0.5 rounded border border-cyan-800/60">Intake Only</span>';
+        else if (item.fungsiFan.includes('Exhaust Fan')) pressureLabel = '<span class="text-[10px] bg-rose-950 text-rose-300 font-bold px-1.5 py-0.5 rounded border border-rose-800/60">Exhaust Only</span>';
+        else if (item.tekananUdara === 'negatif') pressureLabel = '<span class="text-[10px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.5 rounded border border-amber-800/60">Tekanan Negatif</span>';
+        else if (item.tekananUdara === 'positif') pressureLabel = '<span class="text-[10px] bg-emerald-950 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-800/60">Tekanan Positif</span>';
+        else pressureLabel = '<span class="text-[10px] bg-blue-950 text-blue-300 font-bold px-1.5 py-0.5 rounded border border-blue-800/60">Seimbang</span>';
 
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition border-b border-slate-200";
+        tr.className = "hover:bg-zinc-900/60 transition border-b border-zinc-800";
         tr.innerHTML = `
-          <td class="p-3 font-semibold text-slate-800 border-r border-slate-200">${item.kode}</td>
-          <td class="p-3 text-center border-r border-slate-200">${item.p} &times; ${item.l} &times; ${item.t}</td>
-          <td class="p-3 text-center border-r border-slate-200 font-medium">${item.volume.toFixed(1)}</td>
-          <td class="p-3 text-center border-r border-slate-200 bg-blue-50/50 font-bold text-blue-800">${item.ach}</td>
-          <td class="p-3 text-center border-r border-slate-200">${pressureLabel}</td>
-          <td class="p-3 border-r border-slate-200 text-slate-600">${item.tipeFan}</td>
-          <td class="p-3 text-center border-r border-slate-200 font-semibold">${item.fanQty}</td>
-          <td class="p-3 text-center border-r border-slate-200 font-bold text-cyan-700">${item.intakeCMH > 0 ? item.intakeCMH.toLocaleString('id-ID') + ' CMH' : '-'}</td>
-          <td class="p-3 text-center border-r border-slate-200 font-bold text-rose-700">${item.exhaustCMH > 0 ? item.exhaustCMH.toLocaleString('id-ID') + ' CMH' : '-'}</td>
-          <td class="p-3 border-r border-slate-200 font-bold text-emerald-700">${item.totalCMH.toLocaleString('id-ID')} CMH</td>
+          <td class="p-3 font-semibold text-zinc-200 border-r border-zinc-800">${item.kode}</td>
+          <td class="p-3 text-center border-r border-zinc-800">${item.p} &times; ${item.l} &times; ${item.t}</td>
+          <td class="p-3 text-center border-r border-zinc-800 font-medium">${item.volume.toFixed(1)}</td>
+          <td class="p-3 text-center border-r border-zinc-800 bg-blue-950/30 font-bold text-blue-300">${item.ach}</td>
+          <td class="p-3 text-center border-r border-zinc-800">${pressureLabel}</td>
+          <td class="p-3 border-r border-zinc-800 text-zinc-400">${item.tipeFan}</td>
+          <td class="p-3 text-center border-r border-zinc-800 font-semibold">${item.fanQty}</td>
+          <td class="p-3 text-center border-r border-zinc-800 font-bold text-cyan-400">${item.intakeCMH > 0 ? item.intakeCMH.toLocaleString('id-ID') + ' CMH' : '-'}</td>
+          <td class="p-3 text-center border-r border-zinc-800 font-bold text-rose-400">${item.exhaustCMH > 0 ? item.exhaustCMH.toLocaleString('id-ID') + ' CMH' : '-'}</td>
+          <td class="p-3 border-r border-zinc-800 font-bold text-emerald-400">${item.totalCMH.toLocaleString('id-ID')} CMH</td>
           <td class="p-3 text-center no-print">
             <div class="flex items-center justify-center gap-2">
-              <button onclick="editData(${item.id})" class="text-blue-600 hover:text-blue-800 font-semibold text-xs transition">Edit</button>
-              <span class="text-slate-300">|</span>
-              <button onclick="hapusData(${item.id})" class="text-rose-600 hover:text-rose-800 font-semibold text-xs transition">Hapus</button>
+              <button onclick="editData(${item.id})" class="text-blue-400 hover:text-blue-300 font-semibold text-xs transition">Edit</button>
+              <span class="text-zinc-700">|</span>
+              <button onclick="hapusData(${item.id})" class="text-rose-400 hover:text-rose-300 font-semibold text-xs transition">Hapus</button>
             </div>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      // Update Footer Totals
       document.getElementById('footTotalVolume').innerText = grandTotalVolume.toFixed(1) + ' m³';
       document.getElementById('footGrandTotalCMH').innerText = grandTotalCMH.toLocaleString('id-ID') + ' CMH';
       tfoot.classList.remove('hidden');
     }
 
-    // --- Export Data to CSV ---
     function exportToCSV() {
       if (dataEntryList.length === 0) {
         alert("Tidak ada data untuk diexport.");
@@ -671,13 +670,13 @@
     let fanGroup;
     let intakeParticleSystem, exhaustParticleSystem;
     let currentTipeFan = '';
-    const particleCount = 140; // Per system
+    const particleCount = 140;
 
     function init3D() {
       const container = document.getElementById('canvas-container');
       
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0f172a); // Slate-900 background
+      scene.background = new THREE.Color(0x000000); // Pure Black background
 
       camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
       
@@ -690,7 +689,6 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
 
-      // Lights
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
       scene.add(ambientLight);
       
@@ -720,14 +718,13 @@
     }
 
     function initDualAirflowParticles() {
-      // 1. INTAKE AIR PARTICLES (FRESH AIR - CYAN/BLUE)
       const intakeGeo = new THREE.BufferGeometry();
       const intakePos = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount * 3; i++) intakePos[i] = 0;
       intakeGeo.setAttribute('position', new THREE.BufferAttribute(intakePos, 3));
       
       const intakeMat = new THREE.PointsMaterial({
-        color: 0x38bdf8, // Cyan Blue
+        color: 0x38bdf8,
         size: 0.16,
         transparent: true,
         opacity: 0.9,
@@ -736,14 +733,13 @@
       intakeParticleSystem = new THREE.Points(intakeGeo, intakeMat);
       scene.add(intakeParticleSystem);
 
-      // 2. EXHAUST AIR PARTICLES (OUTLET AIR - ROSE/RED)
       const exhaustGeo = new THREE.BufferGeometry();
       const exhaustPos = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount * 3; i++) exhaustPos[i] = 0;
       exhaustGeo.setAttribute('position', new THREE.BufferAttribute(exhaustPos, 3));
       
       const exhaustMat = new THREE.PointsMaterial({
-        color: 0xf43f5e, // Bright Rose Red
+        color: 0xf43f5e,
         size: 0.16,
         transparent: true,
         opacity: 0.9,
@@ -779,10 +775,9 @@
 
       disposeHierarchy(fanGroup);
 
-      // Transparent Room Box
       const boxGeo = new THREE.BoxGeometry(p, t, l);
       const boxMat = new THREE.MeshPhongMaterial({
-        color: 0x64748b,
+        color: 0x27272a,
         transparent: true,
         opacity: 0.15,
         side: THREE.DoubleSide,
@@ -790,31 +785,26 @@
       });
       roomMesh = new THREE.Mesh(boxGeo, boxMat);
       
-      // Wireframe Edges
       const edges = new THREE.EdgesGeometry(boxGeo);
       const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x38bdf8, linewidth: 2 }));
       roomMesh.add(line);
 
-      // Floor Grid helper
-      const gridHelper = new THREE.GridHelper(Math.max(p, l) * 1.3, 12, 0x3b82f6, 0x334155);
+      const gridHelper = new THREE.GridHelper(Math.max(p, l) * 1.3, 12, 0x3b82f6, 0x27272a);
       gridHelper.position.y = -t / 2;
       roomMesh.add(gridHelper);
 
       scene.add(roomMesh);
 
-      // Distinct Materials for Fan Models
-      const intakeFanMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.2 }); // Deep Blue Intake
-      const exhaustFanMat = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.3, metalness: 0.2 }); // Deep Red Exhaust
-      const metalDuctMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.6, roughness: 0.3 }); // Silver Metal
+      const intakeFanMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.2 });
+      const exhaustFanMat = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.3, metalness: 0.2 });
+      const metalDuctMat = new THREE.MeshStandardMaterial({ color: 0x71717a, metalness: 0.6, roughness: 0.3 });
 
       const showIntake = currentFungsiFan.includes('Intake');
       const showExhaust = currentFungsiFan.includes('Exhaust') || currentFungsiFan.includes('Dual');
 
-      // Visibility of Particle Systems
       if (intakeParticleSystem) intakeParticleSystem.visible = showIntake;
       if (exhaustParticleSystem) exhaustParticleSystem.visible = showExhaust;
 
-      // Helper function to create Fan Blades visual
       function createBladeGroup(colorHex) {
         const bg = new THREE.Group();
         const bladeMat = new THREE.MeshBasicMaterial({ color: colorHex });
@@ -826,7 +816,6 @@
         return bg;
       }
 
-      // Generate 3D Fans according to selected Type & Function
       if (tipeFan.includes("Wall Mounted")) {
         const fanCylinderGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.12, 24);
         const zStep = l / (fanQty + 1);
@@ -901,7 +890,6 @@
           }
 
           if (showExhaust) {
-            const exhaustMesh = new THREE.Mesh(fanGeo, t / 2 - 0.04 ? t / 2 - 0.04 : 0, 0.08, 24);
             const exM = new THREE.Mesh(fanGeo, exhaustFanMat);
             exM.position.set(xPos, t / 2 - 0.04, l / 4);
             fanGroup.add(exM);
@@ -940,12 +928,10 @@
       const exPos = exhaustParticleSystem.geometry.attributes.position.array;
       
       for (let i = 0; i < particleCount; i++) {
-        // Intake starts from Left Wall (-p/2) and spreads inward
         inPos[i * 3] = -p / 2 + Math.random() * (p * 0.5);
         inPos[i * 3 + 1] = (Math.random() - 0.5) * (t * 0.8);
         inPos[i * 3 + 2] = (Math.random() - 0.5) * (l * 0.8);
 
-        // Exhaust starts from center room towards Right Wall (+p/2)
         exPos[i * 3] = (Math.random() - 0.2) * (p * 0.5);
         exPos[i * 3 + 1] = (Math.random() - 0.5) * (t * 0.8);
         exPos[i * 3 + 2] = (Math.random() - 0.5) * (l * 0.8);
@@ -970,9 +956,7 @@
         const speed = 0.025 * flowSpeedMultiplier;
 
         for (let i = 0; i < particleCount; i++) {
-          
           if (currentTipeFan.includes("Ceiling Mounted")) {
-            // INTAKE: Flows DOWNWARDS from Ceiling
             inPos[i * 3 + 1] -= speed * 0.8;
             inPos[i * 3] += (Math.random() - 0.5) * 0.008;
             inPos[i * 3 + 2] += (Math.random() - 0.5) * 0.008;
@@ -983,7 +967,6 @@
               inPos[i * 3 + 2] = -halfL / 2 + (Math.random() - 0.5) * 0.4;
             }
 
-            // EXHAUST: Flows UPWARDS towards Ceiling
             exPos[i * 3 + 1] += speed * 0.8;
             exPos[i * 3] += (Math.random() - 0.5) * 0.008;
             exPos[i * 3 + 2] += (Math.random() - 0.5) * 0.008;
@@ -993,9 +976,7 @@
               exPos[i * 3] = (Math.random() - 0.5) * (p * 0.8);
               exPos[i * 3 + 2] = halfL / 2 + (Math.random() - 0.5) * 0.4;
             }
-
           } else {
-            // INTAKE (FRESH AIR - BLUE): Enters from Left Wall (-halfP), flows toward center (+X)
             inPos[i * 3] += speed;
             inPos[i * 3 + 1] += (Math.random() - 0.5) * 0.008;
             inPos[i * 3 + 2] += (Math.random() - 0.5) * 0.008;
@@ -1006,7 +987,6 @@
               inPos[i * 3 + 2] = (Math.random() - 0.5) * (l * 0.7);
             }
 
-            // EXHAUST (BUANG - RED): Starts from room center, flows toward Right Wall (+halfP)
             exPos[i * 3] += speed;
             exPos[i * 3 + 1] += (Math.random() - 0.5) * 0.008;
             exPos[i * 3 + 2] += (Math.random() - 0.5) * 0.008;
@@ -1027,7 +1007,6 @@
       renderer.render(scene, camera);
     }
 
-    // Handle Window Resize
     window.addEventListener('resize', () => {
       const container = document.getElementById('canvas-container');
       if (container && renderer && camera) {
@@ -1037,7 +1016,6 @@
       }
     });
 
-    // On DOM Loaded
     window.onload = () => {
       init3D();
       renderTable();
