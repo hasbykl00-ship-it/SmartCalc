@@ -17,9 +17,9 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-black text-zinc-100 min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 border-b border-slate-800 text-white shadow-md no-print">
+    <header class="bg-zinc-950 border-b border-zinc-800 text-white shadow-md no-print">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
             <div class="flex items-center space-x-3 mb-2 md:mb-0">
                 <div class="bg-blue-600 text-white p-2 rounded-xl shadow">
@@ -27,11 +27,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold">Kalkulator Kebutuhan Freon AC</h1>
-                    <p class="text-xs text-slate-400">Modul Perhitungan Profesional Standar Lapangan (DX & VRV)</p>
+                    <p class="text-xs text-zinc-400">Modul Perhitungan Profesional Standar Lapangan (DX & VRV)</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="current-date-badge" class="bg-slate-800 text-slate-300 border border-slate-700 text-xs px-3 py-1.5 rounded-full font-medium"></span>
+                <span id="current-date-badge" class="bg-zinc-900 text-zinc-300 border border-zinc-800 text-xs px-3 py-1.5 rounded-full font-medium"></span>
             </div>
         </div>
     </header>
@@ -39,9 +39,9 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         <!-- FORM INPUT SECTION -->
-        <section class="lg:col-span-5 bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-6 no-print">
-            <div class="flex items-center justify-between mb-6 pb-3 border-b border-slate-800">
-                <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+        <section class="lg:col-span-5 bg-zinc-950 rounded-2xl shadow-sm border border-zinc-800 p-6 no-print">
+            <div class="flex items-center justify-between mb-6 pb-3 border-b border-zinc-800">
+                <h2 class="text-lg font-bold text-zinc-100 flex items-center gap-2">
                     <i class="fa-solid fa-file-pen text-blue-500"></i> Data Entry Proyek
                 </h2>
                 <button type="button" id="btn-reset" class="text-xs text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1 transition">
@@ -52,47 +52,47 @@
             <form id="calc-form" class="space-y-4">
                 <!-- Nama Teknisi -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nama Teknisi</label>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Nama Teknisi</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-user"></i></span>
-                        <input type="text" id="technician-name" required placeholder="Contoh: Hasby Khairul Lifie" class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="technician-name" required placeholder="Contoh: Hasby Khairul Lifie" class="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
                 <!-- Nama Proyek -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nama Proyek / Lokasi</label>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Nama Proyek / Lokasi</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-building"></i></span>
-                        <input type="text" id="project-name" required placeholder="Contoh: Gedung Menara Lt. 3" class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500"><i class="fa-solid fa-building"></i></span>
+                        <input type="text" id="project-name" required placeholder="Contoh: Gedung Menara Lt. 3" class="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
                 <!-- Tanggal Pengisian -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tanggal Pengisian</label>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Tanggal Pengisian</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-calendar"></i></span>
-                        <input type="date" id="refill-date" required class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500"><i class="fa-solid fa-calendar"></i></span>
+                        <input type="date" id="refill-date" required class="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
                 <!-- Sistem AC (DX / VRV) -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Sistem AC</label>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Sistem AC</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="cursor-pointer border border-slate-700 bg-slate-800/50 rounded-xl p-3 flex items-center space-x-3 hover:border-blue-500 transition system-option">
-                            <input type="radio" name="ac-system" value="DX" checked class="text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-600">
+                        <label class="cursor-pointer border border-zinc-800 bg-zinc-900/50 rounded-xl p-3 flex items-center space-x-3 hover:border-blue-500 transition system-option">
+                            <input type="radio" name="ac-system" value="DX" checked class="text-blue-600 focus:ring-blue-500 bg-zinc-900 border-zinc-700">
                             <div>
-                                <span class="block text-sm font-bold text-slate-200">Sistem DX</span>
-                                <span class="block text-xs text-slate-400">Split / Cassette</span>
+                                <span class="block text-sm font-bold text-zinc-200">Sistem DX</span>
+                                <span class="block text-xs text-zinc-400">Split / Cassette</span>
                             </div>
                         </label>
-                        <label class="cursor-pointer border border-slate-700 bg-slate-800/50 rounded-xl p-3 flex items-center space-x-3 hover:border-blue-500 transition system-option">
-                            <input type="radio" name="ac-system" value="VRV" class="text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-600">
+                        <label class="cursor-pointer border border-zinc-800 bg-zinc-900/50 rounded-xl p-3 flex items-center space-x-3 hover:border-blue-500 transition system-option">
+                            <input type="radio" name="ac-system" value="VRV" class="text-blue-600 focus:ring-blue-500 bg-zinc-900 border-zinc-700">
                             <div>
-                                <span class="block text-sm font-bold text-slate-200">Sistem VRV</span>
-                                <span class="block text-xs text-slate-400">Multi-Split Central</span>
+                                <span class="block text-sm font-bold text-zinc-200">Sistem VRV</span>
+                                <span class="block text-xs text-zinc-400">Multi-Split Central</span>
                             </div>
                         </label>
                     </div>
@@ -100,42 +100,42 @@
 
                 <!-- Panjang Pipa -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Panjang Pipa Total (Meter)</label>
+                    <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Panjang Pipa Total (Meter)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500"><i class="fa-solid fa-ruler"></i></span>
-                        <input type="number" id="pipe-length" min="0" step="0.5" required placeholder="Contoh: 15" class="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500"><i class="fa-solid fa-ruler"></i></span>
+                        <input type="number" id="pipe-length" min="0" step="0.5" required placeholder="Contoh: 15" class="w-full pl-10 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
                 <!-- Pengelompokan VRV (Conditional) -->
-                <div id="vrv-group-container" class="hidden space-y-4 pt-2 border-t border-slate-800">
+                <div id="vrv-group-container" class="hidden space-y-4 pt-2 border-t border-zinc-800">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Pengelompokan / Ukuran Pipa Utama VRV</label>
-                        <select id="vrv-group" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Pengelompokan / Ukuran Pipa Utama VRV</label>
+                        <select id="vrv-group" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                             <option value="small">Kecil (Cairan &lt; 9.5 mm / 3/8") - Standar 0.022 kg/m</option>
                             <option value="medium" selected>Sedang (Cairan 9.5 - 12.7 mm) - Standar 0.054 kg/m</option>
                             <option value="large">Besar (Cairan &gt; 15.9 mm) - Standar 0.110 kg/m</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Jumlah Unit Indoor Terhubung</label>
-                        <input type="number" id="vrv-indoor-count" min="1" value="4" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Jumlah Unit Indoor Terhubung</label>
+                        <input type="number" id="vrv-indoor-count" min="1" value="4" class="w-full px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
                 <!-- Kapasitas Tambahan / Tambahan Jenis Freon -->
                 <div class="grid grid-cols-2 gap-3 pt-2">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tipe Refrigerant</label>
-                        <select id="refrigerant-type" class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Tipe Refrigerant</label>
+                        <select id="refrigerant-type" class="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                             <option value="R410A">R-410A</option>
                             <option value="R32">R-32</option>
                             <option value="R22">R-22</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Pipa Standar Pabrik (m)</label>
-                        <input type="number" id="factory-pipe-standard" min="0" value="7.5" step="0.5" class="w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-slate-900 transition">
+                        <label class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Pipa Standar Pabrik (m)</label>
+                        <input type="number" id="factory-pipe-standard" min="0" value="7.5" step="0.5" class="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition">
                     </div>
                 </div>
 
@@ -150,9 +150,9 @@
         <section class="lg:col-span-7 flex flex-col space-y-6">
             
             <!-- REALTIME CALCULATION RESULT CARD -->
-            <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-6">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                    <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <div class="bg-zinc-950 rounded-2xl shadow-sm border border-zinc-800 p-6">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                    <h2 class="text-lg font-bold text-zinc-100 flex items-center gap-2">
                         <i class="fa-solid fa-chart-pie text-emerald-400"></i> Hasil Perhitungan Real-Time
                     </h2>
                     <span id="active-system-tag" class="bg-blue-950 text-blue-300 border border-blue-800 font-bold text-xs px-3 py-1 rounded-full uppercase">Sistem DX</span>
@@ -160,13 +160,13 @@
 
                 <!-- Stat Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
-                        <span class="block text-xs text-slate-400 font-medium">Panjang Pipa Efektif</span>
-                        <span id="res-effective-pipe" class="text-xl font-extrabold text-slate-100">0.0 m</span>
+                    <div class="bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/80">
+                        <span class="block text-xs text-zinc-400 font-medium">Panjang Pipa Efektif</span>
+                        <span id="res-effective-pipe" class="text-xl font-extrabold text-zinc-100">0.0 m</span>
                     </div>
-                    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
-                        <span class="block text-xs text-slate-400 font-medium">Koreksi Pipa (&gt;Std)</span>
-                        <span id="res-pipe-diff" class="text-xl font-extrabold text-slate-100">0.0 m</span>
+                    <div class="bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/80">
+                        <span class="block text-xs text-zinc-400 font-medium">Koreksi Pipa (&gt;Std)</span>
+                        <span id="res-pipe-diff" class="text-xl font-extrabold text-zinc-100">0.0 m</span>
                     </div>
                     <div class="col-span-2 md:col-span-1 bg-emerald-950/40 p-4 rounded-xl border border-emerald-900/50">
                         <span class="block text-xs text-emerald-400 font-medium">Total Kebutuhan Freon</span>
@@ -175,20 +175,20 @@
                 </div>
 
                 <!-- Breakdown detail -->
-                <div class="bg-slate-800/40 rounded-xl p-4 border border-slate-800 mb-6 space-y-2 text-sm">
+                <div class="bg-zinc-900/40 rounded-xl p-4 border border-zinc-800 mb-6 space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-slate-400">Faktor Penambahan / Meter:</span>
-                        <span id="res-factor" class="font-semibold text-slate-200">0.020 kg/m</span>
+                        <span class="text-zinc-400">Faktor Penambahan / Meter:</span>
+                        <span id="res-factor" class="font-semibold text-zinc-200">0.020 kg/m</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-400">Estimasi Tabung Tabung (3kg / 10kg):</span>
+                        <span class="text-zinc-400">Estimasi Tabung (3kg / 10kg):</span>
                         <span id="res-canister" class="font-semibold text-blue-400">-</span>
                     </div>
                 </div>
 
                 <!-- Action Toolbar -->
                 <div class="flex flex-wrap gap-3">
-                    <button type="button" id="btn-print-requisition" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-sm border border-slate-700">
+                    <button type="button" id="btn-print-requisition" class="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-sm border border-zinc-800">
                         <i class="fa-solid fa-print"></i> Cetak Laporan (pdf)
                     </button>
                     <button type="button" id="btn-export-csv" class="bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-sm">
@@ -198,18 +198,18 @@
             </div>
 
             <!-- SAVED DATA LOGS TABLE -->
-            <div class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 p-6 flex-grow flex flex-col">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                    <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <div class="bg-zinc-950 rounded-2xl shadow-sm border border-zinc-800 p-6 flex-grow flex flex-col">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800">
+                    <h2 class="text-lg font-bold text-zinc-100 flex items-center gap-2">
                         <i class="fa-solid fa-database text-blue-500"></i> Riwayat & Manajemen Data
                     </h2>
-                    <span id="record-count" class="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-full font-semibold border border-slate-700">0 data</span>
+                    <span id="record-count" class="bg-zinc-900 text-zinc-300 text-xs px-2.5 py-1 rounded-full font-semibold border border-zinc-800">0 data</span>
                 </div>
 
                 <div class="overflow-x-auto flex-grow">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="border-b border-slate-800 text-xs text-slate-400 uppercase tracking-wider">
+                            <tr class="border-b border-zinc-800 text-xs text-zinc-400 uppercase tracking-wider">
                                 <th class="py-3 px-2">Proyek / Teknisi</th>
                                 <th class="py-3 px-2">Sistem</th>
                                 <th class="py-3 px-2">Pipa</th>
@@ -228,70 +228,70 @@
     </main>
 
     <!-- FOOTER COPYRIGHT SECTION -->
-    <footer class="bg-slate-900 border-t border-slate-800 mt-auto py-4 no-print text-slate-400">
+    <footer class="bg-zinc-950 border-t border-zinc-800 mt-auto py-4 no-print text-zinc-400">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs font-medium">
             &copy; Mas By - 2026. Hak Cipta Dilindungi Undang-Undang. Dibangun untuk Profesional HVAC &amp; Teknisi Lapangan.
         </div>
     </footer>
 
     <!-- PRINTABLE REQUISITION TEMPLATE (BON PERMINTAAN BARANG) -->
-    <div id="print-area" class="hidden bg-white p-8 max-w-3xl mx-auto text-slate-800">
-        <div class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-end">
+    <div id="print-area" class="hidden bg-white p-8 max-w-3xl mx-auto text-zinc-800">
+        <div class="border-b-2 border-zinc-800 pb-4 mb-6 flex justify-between items-end">
             <div>
                 <h1 class="text-2xl font-black uppercase tracking-wider">Bon Permintaan Barang</h1>
-                <p class="text-xs text-slate-500">Formulir Permohonan Material Refrigerant & Instalasi AC</p>
+                <p class="text-xs text-zinc-500">Formulir Permohonan Material Refrigerant & Instalasi AC</p>
             </div>
             <div class="text-right">
-                <span class="block text-xs font-bold text-slate-400 uppercase">No. Dokumen</span>
-                <span id="print-doc-id" class="text-sm font-bold text-slate-800">REQ-2026-001</span>
+                <span class="block text-xs font-bold text-zinc-400 uppercase">No. Dokumen</span>
+                <span id="print-doc-id" class="text-sm font-bold text-zinc-800">REQ-2026-001</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6 text-sm bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <div class="grid grid-cols-2 gap-4 mb-6 text-sm bg-zinc-50 p-4 rounded-xl border border-zinc-200">
             <div>
-                <span class="block text-xs font-semibold text-slate-500 uppercase">Nama Teknisi:</span>
-                <span id="print-technician" class="font-bold text-slate-800">-</span>
+                <span class="block text-xs font-semibold text-zinc-500 uppercase">Nama Teknisi:</span>
+                <span id="print-technician" class="font-bold text-zinc-800">-</span>
             </div>
             <div>
-                <span class="block text-xs font-semibold text-slate-500 uppercase">Nama Proyek:</span>
-                <span id="print-project" class="font-bold text-slate-800">-</span>
+                <span class="block text-xs font-semibold text-zinc-500 uppercase">Nama Proyek:</span>
+                <span id="print-project" class="font-bold text-zinc-800">-</span>
             </div>
             <div>
-                <span class="block text-xs font-semibold text-slate-500 uppercase">Tanggal Pengisian:</span>
-                <span id="print-date" class="font-bold text-slate-800">-</span>
+                <span class="block text-xs font-semibold text-zinc-500 uppercase">Tanggal Pengisian:</span>
+                <span id="print-date" class="font-bold text-zinc-800">-</span>
             </div>
             <div>
-                <span class="block text-xs font-semibold text-slate-500 uppercase">Sistem & Tipe Freon:</span>
-                <span id="print-system-info" class="font-bold text-slate-800">-</span>
+                <span class="block text-xs font-semibold text-zinc-500 uppercase">Sistem & Tipe Freon:</span>
+                <span id="print-system-info" class="font-bold text-zinc-800">-</span>
             </div>
         </div>
 
-        <table class="w-full text-left border border-slate-300 mb-8 text-sm">
+        <table class="w-full text-left border border-zinc-300 mb-8 text-sm">
             <thead>
-                <tr class="bg-slate-100 border-b border-slate-300">
-                    <th class="p-3 border-r border-slate-300">No.</th>
-                    <th class="p-3 border-r border-slate-300">Deskripsi Material / Item</th>
-                    <th class="p-3 border-r border-slate-300 text-center">Qty</th>
+                <tr class="bg-zinc-100 border-b border-zinc-300">
+                    <th class="p-3 border-r border-zinc-300">No.</th>
+                    <th class="p-3 border-r border-zinc-300">Deskripsi Material / Item</th>
+                    <th class="p-3 border-r border-zinc-300 text-center">Qty</th>
                     <th class="p-3 text-center">Satuan</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="border-b border-slate-200">
-                    <td class="p-3 border-r border-slate-300 text-center">1</td>
-                    <td id="print-item-name" class="p-3 border-r border-slate-300 font-medium">Refrigerant R-410A</td>
-                    <td id="print-item-qty" class="p-3 border-r border-slate-300 text-center font-bold">0.00</td>
+                <tr class="border-b border-zinc-200">
+                    <td class="p-3 border-r border-zinc-300 text-center">1</td>
+                    <td id="print-item-name" class="p-3 border-r border-zinc-300 font-medium">Refrigerant R-410A</td>
+                    <td id="print-item-qty" class="p-3 border-r border-zinc-300 text-center font-bold">0.00</td>
                     <td class="p-3 text-center">Kg</td>
                 </tr>
-                <tr class="border-b border-slate-200">
-                    <td class="p-3 border-r border-slate-300 text-center">2</td>
-                    <td class="p-3 border-r border-slate-300 font-medium">Nitrogen Gas (Purging/Testing)</td>
-                    <td class="p-3 border-r border-slate-300 text-center">1</td>
+                <tr class="border-b border-zinc-200">
+                    <td class="p-3 border-r border-zinc-300 text-center">2</td>
+                    <td class="p-3 border-r border-zinc-300 font-medium">Nitrogen Gas (Purging/Testing)</td>
+                    <td class="p-3 border-r border-zinc-300 text-center">1</td>
                     <td class="p-3 text-center">Tabung</td>
                 </tr>
                 <tr>
-                    <td class="p-3 border-r border-slate-300 text-center">3</td>
-                    <td class="p-3 border-r border-slate-300 font-medium">Material Isolasi / Pipa Pendukung</td>
-                    <td class="p-3 border-r border-slate-300 text-center">1</td>
+                    <td class="p-3 border-r border-zinc-300 text-center">3</td>
+                    <td class="p-3 border-r border-zinc-300 font-medium">Material Isolasi / Pipa Pendukung</td>
+                    <td class="p-3 border-r border-zinc-300 text-center">1</td>
                     <td class="p-3 text-center">Lot</td>
                 </tr>
             </tbody>
@@ -299,28 +299,28 @@
 
         <div class="grid grid-cols-3 gap-6 text-center text-xs mt-12 pt-8">
             <div class="space-y-16">
-                <span class="font-semibold block text-slate-600">Diajukan Oleh (Teknisi)</span>
-                <span id="sign-tech" class="block font-bold text-slate-800 border-t border-slate-400 pt-1">( - )</span>
+                <span class="font-semibold block text-zinc-600">Diajukan Oleh (Teknisi)</span>
+                <span id="sign-tech" class="block font-bold text-zinc-800 border-t border-zinc-400 pt-1">( - )</span>
             </div>
             <div class="space-y-16">
-                <span class="font-semibold block text-slate-600">Disetujui Oleh (Supervisor)</span>
-                <span class="block font-bold text-slate-800 border-t border-slate-400 pt-1">( ........................ )</span>
+                <span class="font-semibold block text-zinc-600">Disetujui Oleh (Supervisor)</span>
+                <span class="block font-bold text-zinc-800 border-t border-zinc-400 pt-1">( ........................ )</span>
             </div>
             <div class="space-y-16">
-                <span class="font-semibold block text-slate-600">Diserahkan Oleh (Gudang)</span>
-                <span class="block font-bold text-slate-800 border-t border-slate-400 pt-1">( ........................ )</span>
+                <span class="font-semibold block text-zinc-600">Diserahkan Oleh (Gudang)</span>
+                <span class="block font-bold text-zinc-800 border-t border-zinc-400 pt-1">( ........................ )</span>
             </div>
         </div>
     </div>
 
     <!-- NOTIFICATION MODAL CUSTOM -->
-    <div id="notification-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl text-center space-y-4">
+    <div id="notification-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl text-center space-y-4">
             <div id="modal-icon" class="w-12 h-12 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 mx-auto flex items-center justify-center text-xl font-bold">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <h3 id="modal-title" class="text-lg font-bold text-slate-100">Berhasil</h3>
-            <p id="modal-message" class="text-sm text-slate-400">Pesan konfirmasi sistem...</p>
+            <h3 id="modal-title" class="text-lg font-bold text-zinc-100">Berhasil</h3>
+            <p id="modal-message" class="text-sm text-zinc-400">Pesan konfirmasi sistem...</p>
             <button type="button" id="modal-close-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-sm transition">Tutup</button>
         </div>
     </div>
@@ -436,24 +436,24 @@
             countBadge.innerText = `${calculationRecords.length} data`;
 
             if(calculationRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-500 italic">Belum ada data perhitungan tersimpan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-zinc-600 italic">Belum ada data perhitungan tersimpan.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             calculationRecords.forEach((rec, index) => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition border-b border-slate-800 last:border-none';
+                tr.className = 'hover:bg-zinc-900/50 transition border-b border-zinc-900 last:border-none';
                 tr.innerHTML = `
                     <td class="py-3 px-2">
-                        <span class="font-bold block text-slate-200">${rec.project}</span>
-                        <span class="text-xs text-slate-400"><i class="fa-solid fa-user text-slate-500 mr-1"></i>${rec.technician}</span>
+                        <span class="font-bold block text-zinc-200">${rec.project}</span>
+                        <span class="text-xs text-zinc-400"><i class="fa-solid fa-user text-zinc-600 mr-1"></i>${rec.technician}</span>
                     </td>
                     <td class="py-3 px-2">
                         <span class="px-2 py-0.5 rounded text-xs font-semibold ${rec.system === 'VRV' ? 'bg-purple-950 text-purple-300 border border-purple-800' : 'bg-blue-950 text-blue-300 border border-blue-800'}">${rec.system}</span>
-                        <span class="block text-xs text-slate-400 mt-0.5">${rec.refrigerant}</span>
+                        <span class="block text-xs text-zinc-400 mt-0.5">${rec.refrigerant}</span>
                     </td>
-                    <td class="py-3 px-2 font-medium text-slate-300">${rec.pipeLength} m</td>
+                    <td class="py-3 px-2 font-medium text-zinc-300">${rec.pipeLength} m</td>
                     <td class="py-3 px-2 font-bold text-emerald-400">${rec.totalFreon} kg</td>
                     <td class="py-3 px-2 text-center space-x-2">
                         <button onclick="loadRecordToForm(${index})" title="Muat ke Form" class="text-blue-400 hover:text-blue-300 transition p-1"><i class="fa-solid fa-pen-to-square"></i></button>
