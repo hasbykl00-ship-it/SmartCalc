@@ -1,1261 +1,1255 @@
-  <!DOCTYPE html>
-  <html lang="id" class="dark">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>MASTER DUCT SIZER </title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-      
-      <script>
-          tailwind.config = {
-              darkMode: 'class',
-              theme: {
-                  extend: {
-                      fontFamily: {
-                          sans: ['Inter', 'sans-serif'],
-                      },
-                      colors: {
-                          brand: {
-                              50: '#f0f9ff',
-                              100: '#e0f2fe',
-                              400: '#38bdf8',
-                              500: '#0284c7',
-                              600: '#0284c7',
-                              700: '#0369a1',
-                              800: '#075985',
-                              900: '#0c4a6e',
-                              950: '#082f49'
-                          }
-                      }
-                  }
-              }
-          }
-      </script>
-      
-      <style>
-          input[type="number"]::-webkit-outer-spin-button,
-          input[type="number"]::-webkit-inner-spin-button {
-              -webkit-appearance: none;
-              margin: 0;
-          }
-          input[type="number"] {
-              -moz-appearance: textfield;
-              appearance: textfield;
-          }
-
-          ::-webkit-scrollbar { width: 6px; height: 6px; }
-          ::-webkit-scrollbar-track { background: #090d16; }
-          ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-          ::-webkit-scrollbar-thumb:hover { background: #334155; }
-
-          .print-only { display: none; }
-
-          @media print {
-              @page {
-                  size: A4 landscape;
-                  margin: 8mm;
-              }
-              
-              *, *::before, *::after {
-                  background: #ffffff !important;
-                  color: #000000 !important;
-                  box-shadow: none !important;
-                  text-shadow: none !important;
-                  border-color: #000000 !important;
-                  -webkit-print-color-adjust: economy !important;
-                  print-color-adjust: economy !important;
-              }
-
-              body {
-                  background: #ffffff !important;
-                  color: #000000 !important;
-                  font-size: 8pt !important;
-                  padding-bottom: 0 !important;
-              }
-
-              .no-print { display: none !important; }
-              .print-only { display: block !important; }
-              
-              main {
-                  max-width: 100% !important;
-                  width: 100% !important;
-                  margin-top: 0 !important;
-                  padding: 0 !important;
-              }
-              
-              section {
-                  background: #ffffff !important;
-                  border: 1px solid #000000 !important;
-                  border-radius: 2px !important;
-                  padding: 6px 10px !important;
-                  margin-bottom: 8px !important;
-                  page-break-inside: avoid;
-              }
-
-              .table-container {
-                  border: 1px solid #000000 !important;
-                  border-radius: 0 !important;
-                  overflow: visible !important;
-              }
-
-              table {
-                  width: 100% !important;
-                  table-layout: fixed !important;
-                  border-collapse: collapse !important;
-                  font-size: 8pt !important;
-                  color: #000000 !important;
-              }
-
-              thead {
-                  background-color: #ffffff !important;
-                  color: #000000 !important;
-              }
-
-              th, td {
-                  padding: 4px 5px !important;
-                  word-wrap: break-word !important;
-                  white-space: normal !important;
-                  border: 1px solid #000000 !important;
-                  color: #000000 !important;
-                  background: #ffffff !important;
-              }
-
-              input, select {
-                  border: none !important;
-                  background: transparent !important;
-                  padding: 0 !important;
-                  box-shadow: none !important;
-                  appearance: none !important;
-                  -webkit-appearance: none !important;
-                  font-size: inherit !important;
-                  font-weight: bold !important;
-                  color: #000000 !important;
-                  width: 100% !important;
-              }
-              
-              select { background-image: none !important; }
-              tr { page-break-inside: avoid; }
-          }
-      </style>
-  </head>
-  <body class="bg-slate-950 text-slate-100 font-sans min-h-screen pb-12 selection:bg-brand-500 selection:text-white">
-
-      <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 text-white sticky top-0 z-50 no-print shadow-xl">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
-              <div class="flex items-center gap-3">
-                  <div class="p-2.5 bg-brand-500/20 border border-brand-400/40 rounded-xl text-brand-400 shadow-lg shadow-brand-500/10">
-                      <i class="fa-solid fa-wind text-2xl animate-pulse"></i>
-                  </div>
-                  <div>
-                      <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
-                          MASTER DUCT SIZER</span>
-                      </h1>
-                      <p class="text-xs text-slate-400">Kalkulator Ukuran Ducting & Headloss berbasis Standar Hart & Cooley Ductulator</p>
-                  </div>
-              </div>
-              
-              <div class="flex items-center flex-wrap gap-2.5">
-                  <div class="bg-slate-950/80 border border-slate-800 rounded-lg p-1 flex items-center text-xs mr-1">
-                      <button id="unitMetricBtn" onclick="setUnitSystem('metric')" class="px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30">
-                          Metric (m&#179;/h, Pa/m, m, Pa)
-                      </button>
-                      <button id="unitImperialBtn" onclick="setUnitSystem('imperial')" class="px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all">
-                          Imperial (CFM, in.wg/100ft, ft)
-                      </button>
-                  </div>
-
-                  <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="importFromExcel(event)">
-                  
-                  <button onclick="triggerExcelImport()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all">
-                      <i class="fa-solid fa-file-import text-amber-400"></i> Import Excel/CSV
-                  </button>
-                  
-                  <button onclick="exportToExcel()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-emerald-900/30 flex items-center gap-2 transition-all">
-                      <i class="fa-solid fa-file-excel"></i> Export Excel
-                  </button>
-
-                  <button onclick="window.print()" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-brand-900/30 flex items-center gap-2 transition-all">
-                      <i class="fa-solid fa-print"></i> Cetak Laporan
-                  </button>
-              </div>
-          </div>
-      </header>
-
-      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
-
-          <div class="print-only mb-4 pb-3 border-b-2 border-black">
-              <div class="flex justify-between items-start">
-                  <div>
-                      <h1 class="text-xl font-bold uppercase tracking-wide text-black">LAPORAN KALKULASI SIZING DUCTING & HEADLOSS</h1>
-                      <p class="text-xs text-gray-700 mt-0.5">Metode Perhitungan: Hart & Cooley Ductulator & ASHRAE Standards</p>
-                  </div>
-                  <div class="text-right text-xs">
-                      <span class="font-bold border border-black px-2 py-0.5">MASTER DUCT SIZER</span>
-                  </div>
-              </div>
-              
-              <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-black text-xs">
-                  <div>
-                      <span class="font-bold">Nama Project:</span>
-                      <span id="printProjectName" class="ml-1 uppercase font-semibold">Gedung Perkantoran Utama</span>
-                  </div>
-                  <div>
-                      <span class="font-bold">Penyusun:</span>
-                      <span id="printAuthorName" class="ml-1 font-semibold">Mas By</span>
-                  </div>
-                  <div>
-                      <span class="font-bold">Tanggal:</span>
-                      <span id="printReportDate" class="ml-1 font-semibold">-</span>
-                  </div>
-              </div>
-          </div>
-
-          <section class="bg-slate-900/90 rounded-xl shadow-xl border border-slate-800/80 p-4 no-print">
-              <div class="flex items-center gap-2 border-b border-slate-800 pb-2 mb-3">
-                  <i class="fa-solid fa-folder-open text-brand-400 text-sm"></i>
-                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200">Informasi Proyek & Laporan Cetak</h3>
-              </div>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                      <label for="inputProjectName" class="block text-[11px] font-semibold text-slate-400 mb-1">
-                          <i class="fa-solid fa-building text-brand-400 mr-1"></i> Nama Project
-                      </label>
-                      <input type="text" id="inputProjectName" value="Gedung Perkantoran Utama" 
-                          oninput="updateProjectMetadata()" 
-                          placeholder="Contoh: Gedung Office Tower A"
-                          class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
-                  </div>
-
-                  <div>
-                      <label for="inputAuthorName" class="block text-[11px] font-semibold text-slate-400 mb-1">
-                          <i class="fa-solid fa-user text-brand-400 mr-1"></i> Nama Penyusun
-                      </label>
-                      <input type="text" id="inputAuthorName" value="Hasby Khairul Lifie" 
-                          oninput="updateProjectMetadata()" 
-                          placeholder="Contoh: Nama Engineer / Perancang"
-                          class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
-                  </div>
-
-                  <div>
-                      <label for="inputReportDate" class="block text-[11px] font-semibold text-slate-400 mb-1">
-                          <i class="fa-solid fa-calendar-day text-brand-400 mr-1"></i> Tanggal Laporan
-                      </label>
-                      <input type="date" id="inputReportDate" 
-                          oninput="updateProjectMetadata()" 
-                          class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
-                  </div>
-              </div>
-          </section>
-
-          <div id="toastNotification" class="hidden fixed bottom-6 right-6 z-50 max-w-md bg-slate-900 border border-brand-500 text-slate-100 p-4 rounded-xl shadow-2xl flex items-start gap-3 transition-all animate-bounce">
-              <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xl mt-0.5"></i>
-              <div>
-                  <h4 id="toastTitle" class="font-bold text-xs text-white">Notifikasi</h4>
-                  <p id="toastMessage" class="text-xs text-slate-300 mt-0.5"></p>
-              </div>
-              <button onclick="hideToast()" class="ml-auto text-slate-400 hover:text-white text-xs">
-                  <i class="fa-solid fa-xmark"></i>
-              </button>
-          </div>
-
-          <section class="bg-slate-900/90 rounded-xl shadow-xl border border-slate-800/80 p-5">
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4 mb-4">
-                  <div>
-                      <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                          <i class="fa-solid fa-table text-brand-400"></i> Tabel Sizing Ducting & Parameter Evaluasi (Hart & Cooley Logic)
-                      </h2>
-                      <p class="text-xs text-slate-400 mt-0.5">
-                          Pilih metode perhitungan per baris: <strong>Target Headloss (Friction Rate)</strong> atau <strong>Design Velocity</strong> sesuai standar Hart & Cooley.
-                      </p>
-                  </div>
-
-                  <div class="flex items-center gap-2 no-print">
-                      <button onclick="addRow()" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold shadow-md shadow-brand-900/30 flex items-center gap-1.5 transition-all">
-                          <i class="fa-solid fa-plus"></i> Tambah Baris
-                      </button>
-                      <button onclick="downloadExcelTemplate()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition-all" title="Unduh Template Excel Format Import">
-                          <i class="fa-solid fa-download mr-1"></i> Template Excel
-                      </button>
-                      <button onclick="loadSampleData()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium transition-all">
-                          <i class="fa-solid fa-rotate-left mr-1"></i> Reset Data Contoh
-                      </button>
-                      <button onclick="clearAllRows()" class="px-3 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 rounded-lg text-xs font-medium transition-all">
-                          <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
-                      </button>
-                  </div>
-              </div>
-
-              <div class="table-container overflow-x-auto rounded-lg border border-slate-800">
-                  <table class="w-full text-left text-xs border-collapse">
-                      <thead class="bg-slate-950 text-slate-300 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800">
-                          <tr>
-                              <th class="p-2.5 w-[3%] text-center">No</th>
-                              <th class="p-2.5 w-[10%]">Tag / Kode</th>
-                              <th class="p-2.5 w-[11%]">Peruntukan</th>
-                              <th class="p-2.5 w-[11%] text-center bg-sky-950/40 text-sky-300 border-x border-sky-900/40" title="Pilih Metode: Target Headloss atau Design Velocity">
-                                  Metode Sizing
-                              </th>
-                              <th class="p-2.5 w-[9%] text-right bg-brand-950/80 text-brand-300 border-r border-brand-900/50">
-                                  Airflow (<span class="unit-q">m³/h</span>) *
-                              </th>
-                              <th class="p-2.5 w-[11%] text-right bg-brand-950/80 text-brand-300 border-r border-brand-900/50" id="dynamicHeaderInput">
-                                  Target HL (<span class="unit-hl">Pa/m</span>) *
-                              </th>
-                              <th class="p-2.5 w-[6%] text-right bg-slate-900 text-slate-300">
-                                  Panjang (<span class="unit-len">m</span>)
-                              </th>
-                              <th class="p-2.5 w-[13%] text-center bg-sky-950/60 text-sky-200 border-x border-sky-900/40">
-                                  Rect Duct (W x H)
-                              </th>
-                              <th class="p-2.5 w-[8%] text-center bg-teal-950/60 text-teal-200">
-                                  Round (&#216;)
-                              </th>
-                              <th class="p-2.5 w-[9%] text-right bg-amber-950/80 text-amber-200 font-bold" id="dynamicHeaderResult">
-                                  Hasil Velocity (<span class="unit-v">m/s</span>)
-                              </th>
-                              <th class="p-2.5 w-[8%] text-right" title="Static Pressure Drop per unit meter">
-                                  SP Rate (<span class="unit-hl">Pa/m</span>)
-                              </th>
-                              <th class="p-2.5 w-[8%] text-right bg-amber-950/40 text-amber-300" title="Total Static Pressure Loss">
-                                  Total SP (<span class="unit-p">Pa</span>)
-                              </th>
-                              <th class="p-2.5 w-[4%] text-center">Aspect</th>
-                              <th class="p-2.5 w-[5%] text-center">Status</th>
-                              <th class="p-2.5 w-[4%] text-center no-print">Aksi</th>
-                          </tr>
-                      </thead>
-                      <tbody id="ductTableBody" class="divide-y divide-slate-800/80 bg-slate-900">
-                          <!-- Dynamic Rows Generated by JavaScript -->
-                      </tbody>
-                  </table>
-              </div>
-          </section>
-
-          <div class="grid grid-cols-1 gap-6">
-              <section class="bg-slate-900/90 rounded-xl shadow-xl border border-slate-800/80 p-5 no-print">
-                  <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                          <i class="fa-solid fa-vector-square text-brand-400"></i> Visualisasi Penampang Ducting & Analisis Hart & Cooley
-                      </h3>
-                      <div class="text-xs text-slate-400">
-                          Klik baris pada tabel di atas untuk memeriksa detail spesifikasi
-                      </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                      <div class="bg-slate-950 rounded-xl p-4 flex flex-col items-center justify-center min-h-[210px] border border-slate-800 relative overflow-hidden shadow-inner">
-                          <div id="visualizerTag" class="absolute top-2 left-3 text-[10px] font-mono text-brand-400 bg-brand-950/80 px-2 py-0.5 rounded border border-brand-800/60">
-                              TAG: -
-                          </div>
-                          <svg id="ductSvg" class="w-full h-44 max-w-[280px]" viewBox="0 0 300 200">
-                              <!-- Dynamic SVG shapes -->
-                          </svg>
-                      </div>
-
-                      <div class="space-y-2 text-xs">
-                          <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800/80">
-                              <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Ukuran Rectangular Duct Standar (W x H)</span>
-                              <div class="flex justify-between items-baseline mt-1">
-                                  <span id="visRectSize" class="text-base font-extrabold text-brand-400">-</span>
-                                  <span id="visAspect" class="text-xs font-semibold text-slate-300">Aspect Ratio: -</span>
-                              </div>
-                              <p id="visGauge" class="text-[11px] text-slate-400 font-medium mt-1">Rekomendasi Tebal Seng BJLS: -</p>
-                          </div>
-
-                          <div class="p-3 bg-slate-950/70 rounded-lg border border-slate-800/80">
-                              <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Ukuran Round Duct Standar (Ø Diameter)</span>
-                              <div class="flex justify-between items-baseline mt-1">
-                                  <span id="visRoundSize" class="text-base font-extrabold text-teal-400">-</span>
-                                  <span id="visEqDia" class="text-xs font-semibold text-slate-300">Equiv Dia: -</span>
-                              </div>
-                              <p class="text-[11px] text-slate-500 mt-0.5">Berdasarkan rumus Hart & Cooley Ductulator (Darcy-Weisbach & Colebrook).</p>
-                          </div>
-
-                          <div class="p-3 bg-amber-950/20 rounded-lg border border-amber-900/50">
-                              <span class="text-amber-400 block text-[10px] uppercase tracking-wider font-bold">Evaluasi Hasil Sizing & Tekanan</span>
-                              <div class="flex justify-between items-center text-xs mt-1">
-                                  <span class="text-slate-400">Hasil Velocity Aktual (V):</span>
-                                  <span id="visActualVel" class="font-bold text-amber-300 text-sm">-</span>
-                              </div>
-                              <div class="flex justify-between items-center text-xs mt-0.5">
-                                  <span class="text-slate-400">Total Static Pressure Drop (&#916;P<sub>s</sub>):</span>
-                                  <span id="visTotalLoss" class="font-bold text-amber-400">-</span>
-                              </div>
-                              <div class="flex justify-between items-center text-xs mt-0.5 pt-1 border-t border-amber-900/40">
-                                  <span class="text-slate-400">Velocity Pressure (P<sub>v</sub>):</span>
-                                  <span id="visVelPress" class="font-semibold text-slate-300">-</span>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-              </section>
-          </div>
-
-          <footer class="text-center text-xs text-slate-500 py-4 border-t border-slate-800/80 mt-8 space-y-1">
-              <p>MASTER DUCT SIZER — Menggunakan Logika Perhitungan Standar Hart & Cooley Ductulator & ASHRAE.</p>
-              <p class="font-semibold text-slate-400">&copy; <span id="footerAuthor">Mas By</span> 2026. All rights reserved.</p>
-          </footer>
-
-      </main>
-
-      <script>
-          let currentUnit = 'metric';
-          let selectedRowIndex = 0;
-
-          let projectMetadata = {
-              projectName: 'Gedung Perkantoran Utama',
-              authorName: 'Hasby Khairul Lifie',
-              reportDate: new Date().toISOString().split('T')[0]
-          };
-
-          const applicationPresets = {
-              'SA_MAIN': { name: 'Supply Air Main' },
-              'SA_BRANCH': { name: 'Supply Air Branch' },
-              'RA_MAIN': { name: 'Return Air Main' },
-              'RA_BRANCH': { name: 'Return Air Branch' },
-              'FA': { name: 'Fresh Air Duct' },
-              'TE': { name: 'Toilet Exhaust' },
-              'KE': { name: 'Kitchen Exhaust' },
-              'SE': { name: 'Smoke Extraction' },
-              'CUSTOM': { name: 'Custom / Lainnya' }
-          };
-
-          const STANDARD_RECT_SIZES_METRIC = [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1800, 2000, 2200, 2400];
-          const STANDARD_RECT_SIZES_IMPERIAL = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 88, 96];
-
-          // Initial Duct Data Aligned with Hart & Cooley Sheet / Ductulator Standards
-          let ductData = [
-              { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 3500, length: 25 },
-              { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 6.5, airflow: 1200, length: 15 },
-              { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.75, airflow: 3000, length: 20 },
-              { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 10.0, airflow: 2500, length: 30 },
-              { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.65, airflow: 1800, length: 12 }
-          ];
-
-          window.addEventListener('DOMContentLoaded', () => {
-              document.getElementById('inputReportDate').value = projectMetadata.reportDate;
-              updateProjectMetadata();
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          });
-
-          function updateProjectMetadata() {
-              const pName = document.getElementById('inputProjectName').value || '-';
-              const aName = document.getElementById('inputAuthorName').value || '-';
-              const rDate = document.getElementById('inputReportDate').value || '-';
-
-              projectMetadata.projectName = pName;
-              projectMetadata.authorName = aName;
-              projectMetadata.reportDate = rDate;
-
-              document.getElementById('printProjectName').textContent = pName;
-              document.getElementById('printAuthorName').textContent = aName;
-              document.getElementById('printReportDate').textContent = rDate;
-              document.getElementById('footerAuthor').textContent = aName.toUpperCase();
-          }
-
-          function setUnitSystem(unit) {
-              if (currentUnit === unit) return;
-              
-              if (unit === 'imperial') {
-                  ductData = ductData.map(row => ({
-                      ...row,
-                      airflow: Math.round(row.airflow * 0.588578),
-                      inputValue: row.method === 'headloss' 
-                          ? parseFloat((row.inputValue * 0.12068).toFixed(2)) // Pa/m to in.wg/100ft approx Hart & Cooley scale
-                          : parseFloat((row.inputValue * 196.85).toFixed(0)),  // m/s to FPM
-                      length: Math.round(row.length * 3.28084)
-                  }));
-                  document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all';
-                  document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30';
-              } else {
-                  ductData = ductData.map(row => ({
-                      ...row,
-                      airflow: Math.round(row.airflow / 0.588578),
-                      inputValue: row.method === 'headloss' 
-                          ? parseFloat((row.inputValue / 0.12068).toFixed(2))
-                          : parseFloat((row.inputValue / 196.85).toFixed(1)),
-                      length: Math.round(row.length / 3.28084)
-                  }));
-                  document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200 transition-all';
-                  document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30';
-              }
-
-              currentUnit = unit;
-              updateUnitLabels();
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function updateUnitLabels() {
-              const qLabels = document.querySelectorAll('.unit-q');
-              const vLabels = document.querySelectorAll('.unit-v');
-              const hlLabels = document.querySelectorAll('.unit-hl');
-              const pLabels = document.querySelectorAll('.unit-p');
-              const lenLabels = document.querySelectorAll('.unit-len');
-
-              qLabels.forEach(el => el.innerHTML = currentUnit === 'metric' ? 'm&#179;/h' : 'CFM');
-              vLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm/s' : 'FPM');
-              hlLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft');
-              pLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'Pa' : 'in.wg');
-              lenLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm' : 'ft');
-          }
-
-          function roundToStandardSize(val, isMetric) {
-              const standards = isMetric ? STANDARD_RECT_SIZES_METRIC : STANDARD_RECT_SIZES_IMPERIAL;
-              for (let size of standards) {
-                  if (size >= val) return size;
-              }
-              return standards[standards.length - 1];
-          }
-
-          // Hart & Cooley Ductulator Calculation Engine (Darcy-Weisbach & Colebrook-White approximation)
-          function calculateDuctRow(row) {
-              const Q = parseFloat(row.airflow) || 0;
-              const val = parseFloat(row.inputValue) || (row.method === 'headloss' ? 0.85 : (currentUnit === 'metric' ? 6.0 : 1200));
-              const L = parseFloat(row.length) || 0;
-
-              let areaReq = 0; 
-              let height = 0;
-              let width = 0;
-              let roundDia = 0;
-              let actualAreaRect = 0;
-              let actualVelRect = 0;
-              let equivDia = 0;
-              let spRate = 0; 
-              let totalStaticPressure = 0; 
-              let velPressure = 0; 
-
-              if (currentUnit === 'metric') {
-                  const Q_m3s = Q / 3600; // m3/s
-
-                  if (row.method === 'headloss') {
-                      // Hart & Cooley Friction Rate method: targetHL (Pa/m)
-                      const targetHL = val;
-                      let estVel = 6.0;
-                      for (let iter = 0; iter < 6; iter++) {
-                          const estArea = Q_m3s / estVel;
-                          const estDe = Math.sqrt((4 * estArea) / Math.PI);
-                          const Re = (1.204 * estVel * estDe) / 0.00001825;
-                          const e_over_D = 0.00009 / (estDe || 0.001); // Hart & Cooley galvanized roughness = 0.09 mm
-                          const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
-                          const pDyn = 0.5 * 1.204 * Math.pow(estVel, 2);
-                          const calcHL = (f / (estDe || 0.001)) * pDyn;
-                          if (calcHL > 0) {
-                              estVel = estVel * Math.pow(targetHL / calcHL, 0.2);
-                          }
-                      }
-                      actualVelRect = Math.max(0.5, estVel);
-                      areaReq = Q_m3s / actualVelRect;
-                  } else {
-                      actualVelRect = Math.max(0.5, val);
-                      areaReq = Q_m3s / actualVelRect;
-                  }
-
-                  const rawRoundDia = Math.sqrt((4 * areaReq) / Math.PI) * 1000;
-                  roundDia = roundToStandardSize(rawRoundDia, true);
-
-                  const rawH_mm = Math.sqrt(areaReq / 1.25) * 1000; // Optimum aspect ratio ~ 1.25:1
-                  height = roundToStandardSize(rawH_mm, true);
-
-                  const rawW_mm = (areaReq * 1000000) / height;
-                  width = roundToStandardSize(rawW_mm, true);
-
-                  if (width < height) {
-                      const temp = width;
-                      width = height;
-                      height = temp;
-                  }
-
-                  actualAreaRect = (width * height) / 1000000;
-                  actualVelRect = Q_m3s / (actualAreaRect || 0.0001);
-
-                  // Huekel / Hart & Cooley rectangular equivalent diameter formula: De = 1.30 * (W*H)^0.625 / (W+H)^0.25
-                  equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
-                  const De_m = equivDia / 1000;
-
-                  const Re = (1.204 * actualVelRect * De_m) / 0.00001825;
-                  const e_over_D = 0.00009 / (De_m || 0.001);
-                  const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
-
-                  velPressure = 0.5 * 1.204 * Math.pow(actualVelRect, 2);
-                  spRate = (f / (De_m || 0.001)) * velPressure;
-                  totalStaticPressure = spRate * L;
-
-              } else {
-                  // Imperial calculation (Hart & Cooley CFM & in.wg/100ft standard)
-                  if (row.method === 'headloss') {
-                      const targetHL = val;
-                      let estVel = 1200; // FPM
-                      for (let iter = 0; iter < 6; iter++) {
-                          const estArea = Q / estVel;
-                          const estDe = Math.sqrt((4 * estArea * 144) / Math.PI) / 12;
-                          const Re = (1.204 * (estVel * 0.00508) * (estDe * 0.3048)) / 0.00001825;
-                          const e_over_D = 0.0035 / (estDe * 12 || 1);
-                          const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
-                          const pDyn = Math.pow(estVel / 4005, 2);
-                          const calcHL = f * (1200 / (estDe * 12 || 1)) * pDyn;
-                          if (calcHL > 0) {
-                              estVel = estVel * Math.pow(targetHL / calcHL, 0.2);
-                          }
-                      }
-                      actualVelRect = Math.max(100, estVel);
-                      areaReq = Q / actualVelRect;
-                  } else {
-                      actualVelRect = Math.max(100, val);
-                      areaReq = Q / actualVelRect;
-                  }
-
-                  const rawRoundDia = Math.sqrt((4 * areaReq * 144) / Math.PI);
-                  roundDia = roundToStandardSize(rawRoundDia, false);
-
-                  const rawH_in = Math.sqrt((areaReq * 144) / 1.25);
-                  height = roundToStandardSize(rawH_in, false);
-
-                  const rawW_in = (areaReq * 144) / height;
-                  width = roundToStandardSize(rawW_in, false);
-
-                  if (width < height) {
-                      const temp = width;
-                      width = height;
-                      height = temp;
-                  }
-
-                  actualAreaRect = (width * height) / 144;
-                  actualVelRect = Q / (actualAreaRect || 0.0001);
-
-                  equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
-                  velPressure = Math.pow(actualVelRect / 4005, 2);
-
-                  const Re = (1.204 * (actualVelRect * 0.00508) * (equivDia * 0.0254)) / 0.00001825;
-                  const e_over_D = 0.0035 / (equivDia || 0.1);
-                  const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
-
-                  spRate = f * (1200 / (equivDia || 0.1)) * velPressure;
-                  totalStaticPressure = (spRate / 100) * L;
-              }
-
-              const aspectRatio = width / (height || 1);
-
-              const maxDim = Math.max(width, height);
-              let gauge = 'BJLS 50 (0.50 mm / 26 Ga)';
-              if (currentUnit === 'metric') {
-                  if (maxDim > 2100) gauge = 'BJLS 120 (1.20 mm / 18 Ga)';
-                  else if (maxDim > 1500) gauge = 'BJLS 100 (1.00 mm / 20 Ga)';
-                  else if (maxDim > 750) gauge = 'BJLS 80 (0.80 mm / 22 Ga)';
-                  else if (maxDim > 300) gauge = 'BJLS 60 (0.60 mm / 24 Ga)';
-              } else {
-                  if (maxDim > 84) gauge = 'BJLS 120 (18 Ga)';
-                  else if (maxDim > 60) gauge = 'BJLS 100 (20 Ga)';
-                  else if (maxDim > 30) gauge = 'BJLS 80 (22 Ga)';
-                  else if (maxDim > 12) gauge = 'BJLS 60 (24 Ga)';
-              }
-
-              return {
-                  width,
-                  height,
-                  roundDia,
-                  actualVelRect,
-                  equivDia,
-                  spRate,
-                  totalStaticPressure,
-                  velPressure,
-                  aspectRatio,
-                  gauge
-              };
-          }
-
-          function renderTable() {
-              const tbody = document.getElementById('ductTableBody');
-              if (!tbody) return;
-              tbody.innerHTML = '';
-
-              const firstRowMethod = ductData.length > 0 ? ductData[selectedRowIndex].method : 'headloss';
-              const hlLabelStr = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft';
-              const vLabelStr = currentUnit === 'metric' ? 'm/s' : 'FPM';
-
-              document.getElementById('dynamicHeaderInput').innerHTML = firstRowMethod === 'headloss' 
-                  ? `Target HL (${hlLabelStr}) *` 
-                  : `Design Vel (${vLabelStr}) *`;
-
-              document.getElementById('dynamicHeaderResult').innerHTML = firstRowMethod === 'headloss'
-                  ? `Hasil Velocity (${vLabelStr})`
-                  : `Hasil Headloss (${hlLabelStr})`;
-
-              ductData.forEach((row, index) => {
-                  const calc = calculateDuctRow(row);
-                  const isSelected = index === selectedRowIndex;
-                  const tr = document.createElement('tr');
-                  tr.id = `duct-row-${index}`;
-                  tr.className = `transition-all cursor-pointer ${isSelected ? 'bg-brand-950/40 border-l-4 border-brand-500 font-medium text-white' : 'hover:bg-slate-800/50 text-slate-200'}`;
-                  
-                  tr.onclick = (e) => {
-                      if (['INPUT', 'SELECT', 'BUTTON', 'I'].includes(e.target.tagName)) return;
-                      selectedRowIndex = index;
-                      renderTable();
-                      renderVisualizer(index);
-                  };
-
-                  const isMethodHL = row.method === 'headloss';
-
-                  tr.innerHTML = `
-                      <td class="p-2 text-center font-bold text-slate-400">${index + 1}</td>
-                      
-                      <td class="p-1.5">
-                          <input type="text" value="${row.tag}" 
-                              oninput="handleCellInput(${index}, 'tag', this.value)"
-                              class="w-full px-2 py-1 bg-slate-950 border border-slate-700/80 rounded focus:border-brand-500 outline-none text-xs truncate font-semibold text-slate-100">
-                      </td>
-
-                      <td class="p-1.5">
-                          <select onchange="handlePresetChange(${index}, this.value)"
-                              class="w-full px-1.5 py-1 bg-slate-950 border border-slate-700/80 text-slate-200 rounded focus:border-brand-500 outline-none text-xs truncate">
-                              ${Object.keys(applicationPresets).map(pKey => `
-                                  <option value="${pKey}" ${row.app === pKey ? 'selected' : ''}>
-                                      ${applicationPresets[pKey].name}
-                                  </option>
-                              `).join('')}
-                          </select>
-                      </td>
-
-                      <td class="p-1.5 bg-sky-950/20 border-x border-sky-900/40">
-                          <select onchange="handleMethodChange(${index}, this.value)"
-                              class="w-full px-1.5 py-1 bg-slate-950 border border-sky-700/80 text-sky-200 rounded focus:border-brand-500 outline-none text-[11px] font-semibold">
-                              <option value="headloss" ${isMethodHL ? 'selected' : ''}>Target Headloss</option>
-                              <option value="velocity" ${!isMethodHL ? 'selected' : ''}>Design Velocity</option>
-                          </select>
-                      </td>
-
-                      <td class="p-1.5 bg-brand-950/30 border-r border-brand-900/40">
-                          <input type="number" value="${row.airflow}" 
-                              oninput="handleCellInput(${index}, 'airflow', this.value)"
-                              placeholder="Airflow..."
-                              class="w-full px-2 py-1 border border-brand-500/50 rounded focus:border-brand-400 outline-none text-right text-xs font-bold text-brand-300 bg-slate-950">
-                      </td>
-
-                      <td class="p-1.5 bg-brand-950/30 border-r border-brand-900/40">
-                          <input type="number" value="${row.inputValue}" step="${isMethodHL ? '0.05' : '0.5'}"
-                              oninput="handleCellInput(${index}, 'inputValue', this.value)"
-                              placeholder="${isMethodHL ? 'Headloss...' : 'Velocity...'}"
-                              class="w-full px-2 py-1 border border-brand-500/50 rounded focus:border-brand-400 outline-none text-right text-xs font-bold text-brand-300 bg-slate-950">
-                      </td>
-
-                      <td class="p-1.5">
-                          <input type="number" value="${row.length}" min="0" step="1"
-                              oninput="handleCellInput(${index}, 'length', this.value)"
-                              class="w-full px-2 py-1 bg-slate-950 border border-slate-700/80 text-slate-200 rounded focus:border-brand-500 outline-none text-right text-xs font-semibold">
-                      </td>
-
-                      <td class="p-2 text-center bg-sky-950/20 border-x border-sky-900/40">
-                          <span id="res-rect-${index}" class="font-extrabold text-sky-400 text-xs sm:text-sm whitespace-nowrap">
-                              ${calc.width} x ${calc.height}
-                          </span>
-                      </td>
-
-                      <td class="p-2 text-center bg-teal-950/20">
-                          <span id="res-round-${index}" class="font-extrabold text-teal-400 text-xs sm:text-sm whitespace-nowrap">
-                              &#216; ${calc.roundDia}
-                          </span>
-                      </td>
-
-                      <td id="res-dynamic-${index}" class="p-2 text-right font-extrabold text-amber-300 bg-amber-950/40">
-                          ${isMethodHL ? calc.actualVelRect.toFixed(2) : calc.spRate.toFixed(2)}
-                      </td>
-
-                      <td id="res-sprate-${index}" class="p-2 text-right font-semibold text-slate-300">
-                          ${calc.spRate.toFixed(2)}
-                      </td>
-
-                      <td id="res-totalsp-${index}" class="p-2 text-right font-semibold text-amber-400 bg-amber-950/20">
-                          ${calc.totalStaticPressure.toFixed(1)}
-                      </td>
-
-                      <td id="res-aspect-${index}" class="p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-400 font-bold' : 'text-slate-400'}">
-                          ${calc.aspectRatio.toFixed(1)}:1
-                      </td>
-
-                      <td id="res-status-${index}" class="p-2 text-center">
-                          ${getStatusBadgeHTML(calc, row)}
-                      </td>
-
-                      <td class="p-1.5 text-center no-print">
-                          <div class="flex items-center justify-center gap-1">
-                              <button onclick="duplicateRow(${index})" title="Duplikasi Baris" class="p-1 text-slate-500 hover:text-brand-400 transition-all">
-                                  <i class="fa-solid fa-copy"></i>
-                              </button>
-                              <button onclick="deleteRow(${index})" title="Hapus Baris" class="p-1 text-slate-500 hover:text-rose-400 transition-all">
-                                  <i class="fa-solid fa-trash-can"></i>
-                              </button>
-                          </div>
-                      </td>
-                  `;
-
-                  tbody.appendChild(tr);
-              });
-          }
-
-          function getStatusBadgeHTML(calc, row) {
-              if (calc.aspectRatio > 4.0) {
-                  return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-950/80 text-amber-400 border border-amber-800/60" title="Aspect ratio > 4:1">AR High</span>';
-              } else if (currentUnit === 'metric' && calc.actualVelRect > 12.0) {
-                  return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-950/80 text-rose-400 border border-rose-800/60">Vel High</span>';
-              }
-              return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">OK</span>';
-          }
-
-          function handleCellInput(index, field, value) {
-              if (field === 'tag') {
-                  ductData[index].tag = value;
-              } else {
-                  const parsed = parseFloat(value);
-                  ductData[index][field] = isNaN(parsed) ? 0 : parsed;
-              }
-
-              updateRowOutputs(index);
-              if (index === selectedRowIndex) {
-                  renderVisualizer(index);
-              }
-          }
-
-          function handleMethodChange(index, method) {
-              ductData[index].method = method;
-              if (method === 'headloss') {
-                  ductData[index].inputValue = currentUnit === 'metric' ? 0.85 : 0.08;
-              } else {
-                  ductData[index].inputValue = currentUnit === 'metric' ? 6.0 : 1200;
-              }
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function updateRowOutputs(index) {
-              const row = ductData[index];
-              const calc = calculateDuctRow(row);
-              const isMethodHL = row.method === 'headloss';
-
-              const rectEl = document.getElementById(`res-rect-${index}`);
-              if (rectEl) rectEl.textContent = `${calc.width} x ${calc.height}`;
-
-              const roundEl = document.getElementById(`res-round-${index}`);
-              if (roundEl) roundEl.innerHTML = `&#216; ${calc.roundDia}`;
-
-              const dynResEl = document.getElementById(`res-dynamic-${index}`);
-              if (dynResEl) dynResEl.textContent = isMethodHL ? calc.actualVelRect.toFixed(2) : calc.spRate.toFixed(2);
-
-              const spRateEl = document.getElementById(`res-sprate-${index}`);
-              if (spRateEl) spRateEl.textContent = calc.spRate.toFixed(2);
-
-              const totalSpEl = document.getElementById(`res-totalsp-${index}`);
-              if (totalSpEl) totalSpEl.textContent = calc.totalStaticPressure.toFixed(1);
-
-              const aspectEl = document.getElementById(`res-aspect-${index}`);
-              if (aspectEl) {
-                  aspectEl.textContent = `${calc.aspectRatio.toFixed(1)}:1`;
-                  aspectEl.className = `p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-400 font-bold' : 'text-slate-400'}`;
-              }
-
-              const statusEl = document.getElementById(`res-status-${index}`);
-              if (statusEl) statusEl.innerHTML = getStatusBadgeHTML(calc, row);
-          }
-
-          function handlePresetChange(index, appKey) {
-              ductData[index].app = appKey;
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function addRow() {
-              const newId = ductData.length > 0 ? Math.max(...ductData.map(d => d.id)) + 1 : 1;
-              const newRow = {
-                  id: newId,
-                  tag: `DUCT-0${newId}`,
-                  app: 'SA_MAIN',
-                  method: 'headloss',
-                  inputValue: currentUnit === 'metric' ? 0.85 : 0.08,
-                  airflow: currentUnit === 'metric' ? 2000 : 1200,
-                  length: currentUnit === 'metric' ? 10 : 30
-              };
-              ductData.push(newRow);
-              selectedRowIndex = ductData.length - 1;
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function duplicateRow(index) {
-              const source = ductData[index];
-              const newRow = {
-                  ...source,
-                  id: Math.max(...ductData.map(d => d.id)) + 1,
-                  tag: `${source.tag}-COPY`
-              };
-              ductData.splice(index + 1, 0, newRow);
-              selectedRowIndex = index + 1;
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function deleteRow(index) {
-              if (ductData.length <= 1) return;
-              ductData.splice(index, 1);
-              if (selectedRowIndex >= ductData.length) {
-                  selectedRowIndex = ductData.length - 1;
-              }
-              renderTable();
-              renderVisualizer(selectedRowIndex);
-          }
-
-          function clearAllRows() {
-              ductData = [{
-                  id: 1, tag: 'NEW-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 1000, length: 10
-              }];
-              selectedRowIndex = 0;
-              renderTable();
-              renderVisualizer(0);
-          }
-
-          function loadSampleData() {
-              if (currentUnit === 'metric') {
-                  ductData = [
-                      { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 3500, length: 25 },
-                      { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 6.5, airflow: 1200, length: 15 },
-                      { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.75, airflow: 3000, length: 20 },
-                      { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 10.0, airflow: 2500, length: 30 },
-                      { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.65, airflow: 1800, length: 12 }
-                  ];
-              } else {
-                  ductData = [
-                      { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.08, airflow: 2000, length: 80 },
-                      { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 1200, airflow: 700, length: 45 },
-                      { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.07, airflow: 1800, length: 65 },
-                      { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 2000, airflow: 1500, length: 100 },
-                      { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.06, airflow: 1000, length: 40 }
-                  ];
-              }
-              selectedRowIndex = 0;
-              renderTable();
-              renderVisualizer(0);
-              showToast('Data contoh Hart & Cooley berhasil dimuat!', 'info');
-          }
-
-          function renderVisualizer(index) {
-              if (!ductData[index]) return;
-              const row = ductData[index];
-              const calc = calculateDuctRow(row);
-
-              document.getElementById('visualizerTag').textContent = `TAG: ${row.tag} (${row.method === 'headloss' ? 'Metode: Target Headloss (H&C)' : 'Metode: Design Velocity'})`;
-              document.getElementById('visRectSize').textContent = `${calc.width} x ${calc.height} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
-              document.getElementById('visRoundSize').innerHTML = `&#216; ${calc.roundDia} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
-              document.getElementById('visAspect').textContent = `Aspect Ratio: ${calc.aspectRatio.toFixed(1)}:1`;
-              document.getElementById('visEqDia').textContent = `Equiv Dia: ${Math.round(calc.equivDia)} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
-              document.getElementById('visGauge').textContent = `Rekomendasi Tebal Seng: ${calc.gauge}`;
-              
-              document.getElementById('visActualVel').textContent = `${calc.actualVelRect.toFixed(2)} ${currentUnit === 'metric' ? 'm/s' : 'FPM'}`;
-              document.getElementById('visTotalLoss').textContent = `${calc.totalStaticPressure.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'} (${row.length} ${currentUnit === 'metric' ? 'm' : 'ft'})`;
-              document.getElementById('visVelPress').textContent = `${calc.velPressure.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'}`;
-
-              const svg = document.getElementById('ductSvg');
-              if (!svg) return;
-              svg.innerHTML = '';
-
-              const maxBoxDim = Math.max(calc.width, calc.height, calc.roundDia);
-              const scale = 110 / (maxBoxDim || 1);
-
-              const rectW = calc.width * scale;
-              const rectH = calc.height * scale;
-              const roundR = (calc.roundDia * scale) / 2;
-
-              const rectX = 80 - rectW / 2;
-              const rectY = 100 - rectH / 2;
-
-              const roundCenterX = 220;
-              const roundCenterY = 100;
-
-              svg.innerHTML = `
-                  <defs>
-                      <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#334155" stroke-width="0.5"/>
-                      </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#grid)" opacity="0.4" />
-
-                  <g>
-                      <rect x="${rectX}" y="${rectY}" width="${rectW}" height="${rectH}" 
-                          fill="#0284c7" fill-opacity="0.3" stroke="#38bdf8" stroke-width="2" rx="4" />
-                      <text x="${rectX + rectW / 2}" y="${Math.max(rectY - 6, 12)}" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="bold">
-                          W: ${calc.width}
-                      </text>
-                      <text x="${Math.max(rectX - 6, 8)}" y="${rectY + rectH / 2 + 3}" text-anchor="end" fill="#38bdf8" font-size="10" font-weight="bold">
-                          H: ${calc.height}
-                      </text>
-                      <text x="80" y="185" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="500">RECTANGULAR STANDAR</text>
-                  </g>
-
-                  <g>
-                      <circle cx="${roundCenterX}" cy="${roundCenterY}" r="${roundR}" 
-                          fill="#0d9488" fill-opacity="0.3" stroke="#2dd4bf" stroke-width="2" />
-                      <line x1="${roundCenterX - roundR}" y1="${roundCenterY}" x2="${roundCenterX + roundR}" y2="${roundCenterY}" 
-                          stroke="#2dd4bf" stroke-dasharray="3,3" stroke-width="1.5" />
-                      <text x="${roundCenterX}" y="${roundCenterY - 6}" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="bold">
-                          &#216; ${calc.roundDia}
-                      </text>
-                      <text x="220" y="185" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="500">ROUND STANDAR</text>
-                  </g>
-              `;
-          }
-
-          function triggerExcelImport() {
-              document.getElementById('excelFileInput').click();
-          }
-
-          function importFromExcel(event) {
-              const file = event.target.files[0];
-              if (!file) return;
-
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                  try {
-                      const data = new Uint8Array(e.target.result);
-                      const workbook = XLSX.read(data, { type: 'array' });
-                      const firstSheetName = workbook.SheetNames[0];
-                      const worksheet = workbook.Sheets[firstSheetName];
-                      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                      if (jsonData.length < 2) {
-                          showToast('File Excel kosong atau format tidak sesuai.', 'error');
-                          return;
-                      }
-
-                      let newDucts = [];
-                      let headerIndex = -1;
-
-                      for (let r = 0; r < Math.min(jsonData.length, 10); r++) {
-                          const rowStr = jsonData[r].join(' ').toLowerCase();
-                          if (rowStr.includes('tag') || rowStr.includes('airflow') || rowStr.includes('metode') || rowStr.includes('peruntukan')) {
-                              headerIndex = r;
-                              break;
-                          }
-                      }
-
-                      const startIndex = headerIndex >= 0 ? headerIndex + 1 : 1;
-
-                      for (let i = startIndex; i < jsonData.length; i++) {
-                          const row = jsonData[i];
-                          if (!row || row.length === 0 || !row[0]) continue;
-
-                          const firstCell = String(row[0]).toLowerCase();
-                          if (firstCell.includes('total') || firstCell.includes('summary')) continue;
-
-                          let tag = String(row[0] || `DUCT-0${i}`);
-                          let appKey = 'SA_MAIN';
-                          let rawApp = String(row[1] || '').toUpperCase();
-
-                          if (rawApp.includes('SUPPLY') && rawApp.includes('BRANCH')) appKey = 'SA_BRANCH';
-                          else if (rawApp.includes('SUPPLY') || rawApp.includes('SA')) appKey = 'SA_MAIN';
-                          else if (rawApp.includes('RETURN') && rawApp.includes('BRANCH')) appKey = 'RA_BRANCH';
-                          else if (rawApp.includes('RETURN') || rawApp.includes('RA')) appKey = 'RA_MAIN';
-                          else if (rawApp.includes('FRESH') || rawApp.includes('FA')) appKey = 'FA';
-                          else if (rawApp.includes('KITCHEN') || rawApp.includes('KE')) appKey = 'KE';
-                          else if (rawApp.includes('TOILET') || rawApp.includes('TE')) appKey = 'TE';
-                          else if (rawApp.includes('SMOKE') || rawApp.includes('SE')) appKey = 'SE';
-
-                          let method = 'headloss';
-                          let rawMethod = String(row[2] || '').toLowerCase();
-                          if (rawMethod.includes('vel') || rawMethod.includes('kecepatan')) method = 'velocity';
-
-                          let airflow = parseFloat(row[3] || row[2]) || (currentUnit === 'metric' ? 2000 : 1200);
-                          let inputValue = parseFloat(row[4] || row[3]) || (currentUnit === 'metric' ? 0.85 : 0.08);
-                          let length = parseFloat(row[5] || row[4]) || (currentUnit === 'metric' ? 10 : 30);
-
-                          newDucts.push({
-                              id: i,
-                              tag: tag,
-                              app: appKey,
-                              method: method,
-                              inputValue: inputValue,
-                              airflow: airflow,
-                              length: length
-                          });
-                      }
-
-                      if (newDucts.length > 0) {
-                          ductData = newDucts;
-                          selectedRowIndex = 0;
-                          renderTable();
-                          renderVisualizer(0);
-                          showToast(`Berhasil meng-import ${newDucts.length} segmen ducting!`, 'success');
-                      } else {
-                          showToast('Tidak ada data baris valid yang terdeteksi.', 'error');
-                      }
-                  } catch (err) {
-                      console.error('Error importing Excel:', err);
-                      showToast('Gagal meng-import file Excel. Pastikan format file sesuai.', 'error');
-                  } finally {
-                      event.target.value = '';
-                  }
-              };
-              reader.readAsArrayBuffer(file);
-          }
-
-          function exportToExcel() {
-              const qUnit = currentUnit === 'metric' ? 'm3/h' : 'CFM';
-              const hlUnit = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft';
-              const vUnit = currentUnit === 'metric' ? 'm/s' : 'FPM';
-              const lenUnit = currentUnit === 'metric' ? 'm' : 'ft';
-              const dimUnit = currentUnit === 'metric' ? 'mm' : 'inch';
-              const pressUnit = currentUnit === 'metric' ? 'Pa' : 'in.wg';
-
-              let excelData = [
-                  ["MASTER DUCT SIZER - HART & COOLEY CALCULATION REPORT"],
-                  ["Nama Project:", projectMetadata.projectName],
-                  ["Penyusun:", projectMetadata.authorName],
-                  ["Tanggal Laporan:", projectMetadata.reportDate],
-                  ["Sistem Satuan:", currentUnit.toUpperCase()],
-                  [],
-                  [
-                      "No",
-                      "Tag / Kode",
-                      "Peruntukan",
-                      "Metode Sizing",
-                      `Airflow (${qUnit})`,
-                      "Input Nilai (HL / Vel)",
-                      `Panjang (${lenUnit})`,
-                      `Lebar W (${dimUnit})`,
-                      `Tinggi H (${dimUnit})`,
-                      `Round Dia (${dimUnit})`,
-                      `Hasil Sizing (Vel/HL)`,
-                      `SP Rate (${hlUnit})`,
-                      `Total Static Pressure (${pressUnit})`,
-                      "Aspect Ratio",
-                      "BJLS Gauge",
-                      "Status"
-                  ]
-              ];
-
-              let totalAirflow = 0;
-              let totalLength = 0;
-              let totalStaticPressure = 0;
-
-              ductData.forEach((row, i) => {
-                  const calc = calculateDuctRow(row);
-                  const appName = applicationPresets[row.app] ? applicationPresets[row.app].name : row.app;
-                  const isMethodHL = row.method === 'headloss';
-                  
-                  totalAirflow += parseFloat(row.airflow) || 0;
-                  totalLength += parseFloat(row.length) || 0;
-                  totalStaticPressure += calc.totalStaticPressure;
-
-                  excelData.push([
-                      i + 1,
-                      row.tag,
-                      appName,
-                      isMethodHL ? 'Target Headloss' : 'Design Velocity',
-                      row.airflow,
-                      row.inputValue,
-                      row.length,
-                      calc.width,
-                      calc.height,
-                      calc.roundDia,
-                      isMethodHL ? parseFloat(calc.actualVelRect.toFixed(2)) : parseFloat(calc.spRate.toFixed(2)),
-                      parseFloat(calc.spRate.toFixed(2)),
-                      parseFloat(calc.totalStaticPressure.toFixed(1)),
-                      `${calc.aspectRatio.toFixed(1)}:1`,
-                      calc.gauge,
-                      calc.aspectRatio > 4.0 ? 'AR High' : 'OK'
-                  ]);
-              });
-
-              excelData.push([
-                  "TOTAL",
-                  `${ductData.length} Segmen`,
-                  "-",
-                  "-",
-                  totalAirflow,
-                  "-",
-                  totalLength,
-                  "-",
-                  "-",
-                  "-",
-                  "-",
-                  "-",
-                  parseFloat(totalStaticPressure.toFixed(1)),
-                  "-",
-                  "-",
-                  "-"
-              ]);
-
-              const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-              worksheet['!cols'] = [
-                  { wch: 5 }, { wch: 18 }, { wch: 22 }, { wch: 18 }, { wch: 15 }, 
-                  { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, 
-                  { wch: 16 }, { wch: 15 }, { wch: 18 }, { wch: 12 }, { wch: 25 }, { wch: 10 }
-              ];
-
-              const workbook = XLSX.utils.book_new();
-              XLSX.utils.book_append_sheet(workbook, worksheet, "Hart & Cooley Calculations");
-
-              const safeProjectName = projectMetadata.projectName.replace(/[^a-zA-Z0-9_-]/g, '_');
-              const fileName = `HartAndCooley_DuctSizer_${safeProjectName}_${projectMetadata.reportDate}.xlsx`;
-              XLSX.writeFile(workbook, fileName);
-
-              showToast('Laporan Excel berhasil di-export!', 'success');
-          }
-
-          function downloadExcelTemplate() {
-              const templateData = [
-                  ["Tag / Kode", "Peruntukan Ducting", "Metode (headloss/velocity)", "Airflow (m3/h)", "Nilai Input (HL/Vel)", "Panjang (m)"],
-                  ["SA-MAIN-01", "Supply Air Main", "headloss", 3500, 0.85, 25],
-                  ["SA-BRANCH-01", "Supply Air Branch", "velocity", 1200, 6.5, 15],
-                  ["RA-MAIN-01", "Return Air Main", "headloss", 3000, 0.75, 20],
-                  ["KE-EXHAUST-01", "Kitchen Exhaust", "velocity", 2500, 10.0, 30]
-              ];
-
-              const worksheet = XLSX.utils.aoa_to_sheet(templateData);
-              worksheet['!cols'] = [{ wch: 16 }, { wch: 20 }, { wch: 22 }, { wch: 15 }, { wch: 20 }, { wch: 12 }];
-
-              const workbook = XLSX.utils.book_new();
-              XLSX.utils.book_append_sheet(workbook, worksheet, "Template Import");
-
-              XLSX.writeFile(workbook, "Template_Import_Hart_And_Cooley_Sizer.xlsx");
-              showToast('Template Excel berhasil diunduh!', 'info');
-          }
-
-          function showToast(message, type = 'success') {
-              const toast = document.getElementById('toastNotification');
-              const title = document.getElementById('toastTitle');
-              const msg = document.getElementById('toastMessage');
-              const icon = document.getElementById('toastIcon');
-
-              if (!toast) return;
-
-              msg.textContent = message;
-              if (type === 'success') {
-                  title.textContent = 'Berhasil';
-                  icon.className = 'fa-solid fa-circle-check text-emerald-400 text-xl mt-0.5';
-                  toast.style.borderColor = '#10b981';
-              } else if (type === 'error') {
-                  title.textContent = 'Gagal';
-                  icon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-xl mt-0.5';
-                  toast.style.borderColor = '#f43f5e';
-              } else {
-                  title.textContent = 'Informasi';
-                  icon.className = 'fa-solid fa-circle-info text-sky-400 text-xl mt-0.5';
-                  toast.style.borderColor = '#0284c7';
-              }
-
-              toast.classList.remove('hidden');
-              setTimeout(() => {
-                  hideToast();
-              }, 4000);
-          }
-
-          function hideToast() {
-              const toast = document.getElementById('toastNotification');
-              if (toast) toast.classList.add('hidden');
-          }
-      </script>
-  </body>
-  </html>
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASTER DUCT SIZER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333333; }
+
+        .print-only { display: none; }
+
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+            
+            *, *::before, *::after {
+                background: #ffffff !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+                border-color: #000000 !important;
+                -webkit-print-color-adjust: economy !important;
+                print-color-adjust: economy !important;
+            }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 8pt !important;
+                padding-bottom: 0 !important;
+            }
+
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            
+            main {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin-top: 0 !important;
+                padding: 0 !important;
+            }
+            
+            section {
+                background: #ffffff !important;
+                border: 1px solid #000000 !important;
+                border-radius: 2px !important;
+                padding: 6px 10px !important;
+                margin-bottom: 8px !important;
+                page-break-inside: avoid;
+            }
+
+            .table-container {
+                border: 1px solid #000000 !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                font-size: 8pt !important;
+                color: #000000 !important;
+            }
+
+            thead {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            th, td {
+                padding: 4px 5px !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+                border: 1px solid #000000 !important;
+                color: #000000 !important;
+                background: #ffffff !important;
+            }
+
+            input, select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                font-size: inherit !important;
+                font-weight: bold !important;
+                color: #000000 !important;
+                width: 100% !important;
+            }
+            
+            select { background-image: none !important; }
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-black text-slate-100 font-sans min-h-screen pb-12 selection:bg-brand-500 selection:text-white">
+
+    <header class="bg-black/95 backdrop-blur-md border-b border-neutral-900 text-white sticky top-0 z-50 no-print shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-brand-500/20 border border-brand-400/40 rounded-xl text-brand-400 shadow-lg shadow-brand-500/10">
+                    <i class="fa-solid fa-wind text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
+                        MASTER DUCT SIZER
+                    </h1>
+                    <p class="text-xs text-neutral-400">Kalkulator Ukuran Ducting & Headloss berbasis Standar Hart & Cooley Ductulator</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center flex-wrap gap-2.5">
+                <div class="bg-neutral-950 border border-neutral-800 rounded-lg p-1 flex items-center text-xs mr-1">
+                    <button id="unitMetricBtn" onclick="setUnitSystem('metric')" class="px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30">
+                        Metric (m&#179;/h, Pa/m, m, Pa)
+                    </button>
+                    <button id="unitImperialBtn" onclick="setUnitSystem('imperial')" class="px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-slate-200 transition-all">
+                        Imperial (CFM, in.wg/100ft, ft)
+                    </button>
+                </div>
+
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="importFromExcel(event)">
+                
+                <button onclick="triggerExcelImport()" class="px-3 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-file-import text-amber-400"></i> Import Excel/CSV
+                </button>
+                
+                <button onclick="exportToExcel()" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold shadow-lg shadow-emerald-950/50 flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-file-excel"></i> Export Excel
+                </button>
+
+                <button onclick="window.print()" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-brand-950/50 flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-print"></i> Cetak Laporan
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+
+        <div class="print-only mb-4 pb-3 border-b-2 border-black">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-xl font-bold uppercase tracking-wide text-black">LAPORAN KALKULASI SIZING DUCTING & HEADLOSS</h1>
+                    <p class="text-xs text-gray-700 mt-0.5">Metode Perhitungan: Hart & Cooley Ductulator & ASHRAE Standards</p>
+                </div>
+                <div class="text-right text-xs">
+                    <span class="font-bold border border-black px-2 py-0.5">MASTER DUCT SIZER</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-black text-xs">
+                <div>
+                    <span class="font-bold">Nama Project:</span>
+                    <span id="printProjectName" class="ml-1 uppercase font-semibold">Gedung Perkantoran Utama</span>
+                </div>
+                <div>
+                    <span class="font-bold">Penyusun:</span>
+                    <span id="printAuthorName" class="ml-1 font-semibold">Mas By</span>
+                </div>
+                <div>
+                    <span class="font-bold">Tanggal:</span>
+                    <span id="printReportDate" class="ml-1 font-semibold">-</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-neutral-950 rounded-xl shadow-xl border border-neutral-900 p-4 no-print">
+            <div class="flex items-center gap-2 border-b border-neutral-900 pb-2 mb-3">
+                <i class="fa-solid fa-folder-open text-brand-400 text-sm"></i>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200">Informasi Proyek & Laporan Cetak</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label for="inputProjectName" class="block text-[11px] font-semibold text-neutral-400 mb-1">
+                        <i class="fa-solid fa-building text-brand-400 mr-1"></i> Nama Project
+                    </label>
+                    <input type="text" id="inputProjectName" value="Gedung Perkantoran Utama" 
+                        oninput="updateProjectMetadata()" 
+                        placeholder="Contoh: Gedung Office Tower A"
+                        class="w-full px-3 py-1.5 bg-black border border-neutral-800 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
+                </div>
+
+                <div>
+                    <label for="inputAuthorName" class="block text-[11px] font-semibold text-neutral-400 mb-1">
+                        <i class="fa-solid fa-user text-brand-400 mr-1"></i> Nama Penyusun
+                    </label>
+                    <input type="text" id="inputAuthorName" value="Hasby Khairul Lifie" 
+                        oninput="updateProjectMetadata()" 
+                        placeholder="Contoh: Nama Engineer / Perancang"
+                        class="w-full px-3 py-1.5 bg-black border border-neutral-800 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
+                </div>
+
+                <div>
+                    <label for="inputReportDate" class="block text-[11px] font-semibold text-neutral-400 mb-1">
+                        <i class="fa-solid fa-calendar-day text-brand-400 mr-1"></i> Tanggal Laporan
+                    </label>
+                    <input type="date" id="inputReportDate" 
+                        oninput="updateProjectMetadata()" 
+                        class="w-full px-3 py-1.5 bg-black border border-neutral-800 rounded-lg text-xs text-slate-100 focus:border-brand-500 outline-none font-medium">
+                </div>
+            </div>
+        </section>
+
+        <div id="toastNotification" class="hidden fixed bottom-6 right-6 z-50 max-w-md bg-neutral-900 border border-brand-500 text-slate-100 p-4 rounded-xl shadow-2xl flex items-start gap-3 transition-all animate-bounce">
+            <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-xl mt-0.5"></i>
+            <div>
+                <h4 id="toastTitle" class="font-bold text-xs text-white">Notifikasi</h4>
+                <p id="toastMessage" class="text-xs text-neutral-300 mt-0.5"></p>
+            </div>
+            <button onclick="hideToast()" class="ml-auto text-neutral-400 hover:text-white text-xs">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <section class="bg-neutral-950 rounded-xl shadow-xl border border-neutral-900 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-900 pb-4 mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-table text-brand-400"></i> Tabel Sizing Ducting & Parameter Evaluasi (Hart & Cooley Logic)
+                    </h2>
+                    <p class="text-xs text-neutral-400 mt-0.5">
+                        Pilih metode perhitungan per baris: <strong>Target Headloss (Friction Rate)</strong> atau <strong>Design Velocity</strong> sesuai standar Hart & Cooley.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="addRow()" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold shadow-md shadow-brand-950/50 flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-plus"></i> Tambah Baris
+                    </button>
+                    <button onclick="downloadExcelTemplate()" class="px-3 py-2 bg-neutral-900 hover:bg-neutral-800 text-slate-300 border border-neutral-800 rounded-lg text-xs font-medium transition-all" title="Unduh Template Excel Format Import">
+                        <i class="fa-solid fa-download mr-1"></i> Template Excel
+                    </button>
+                    <button onclick="loadSampleData()" class="px-3 py-2 bg-neutral-900 hover:bg-neutral-800 text-slate-300 border border-neutral-800 rounded-lg text-xs font-medium transition-all">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Data Contoh
+                    </button>
+                    <button onclick="clearAllRows()" class="px-3 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-900/60 rounded-lg text-xs font-medium transition-all">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container overflow-x-auto rounded-lg border border-neutral-900">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-black text-neutral-300 font-semibold uppercase tracking-wider text-[10px] border-b border-neutral-900">
+                        <tr>
+                            <th class="p-2.5 w-[3%] text-center">No</th>
+                            <th class="p-2.5 w-[10%]">Tag / Kode</th>
+                            <th class="p-2.5 w-[11%]">Peruntukan</th>
+                            <th class="p-2.5 w-[11%] text-center bg-sky-950/30 text-sky-300 border-x border-sky-950/50" title="Pilih Metode: Target Headloss atau Design Velocity">
+                                Metode Sizing
+                            </th>
+                            <th class="p-2.5 w-[9%] text-right bg-brand-950/50 text-brand-300 border-r border-brand-950/50">
+                                Airflow (<span class="unit-q">m³/h</span>) *
+                            </th>
+                            <th class="p-2.5 w-[11%] text-right bg-brand-950/50 text-brand-300 border-r border-brand-950/50" id="dynamicHeaderInput">
+                                Target HL (<span class="unit-hl">Pa/m</span>) *
+                            </th>
+                            <th class="p-2.5 w-[6%] text-right bg-neutral-900 text-slate-300">
+                                Panjang (<span class="unit-len">m</span>)
+                            </th>
+                            <th class="p-2.5 w-[13%] text-center bg-sky-950/40 text-sky-200 border-x border-sky-950/50">
+                                Rect Duct (W x H)
+                            </th>
+                            <th class="p-2.5 w-[8%] text-center bg-teal-950/40 text-teal-200">
+                                Round (&#216;)
+                            </th>
+                            <th class="p-2.5 w-[9%] text-right bg-amber-950/50 text-amber-200 font-bold" id="dynamicHeaderResult">
+                                Hasil Velocity (<span class="unit-v">m/s</span>)
+                            </th>
+                            <th class="p-2.5 w-[8%] text-right" title="Static Pressure Drop per unit meter">
+                                SP Rate (<span class="unit-hl">Pa/m</span>)
+                            </th>
+                            <th class="p-2.5 w-[8%] text-right bg-amber-950/30 text-amber-300" title="Total Static Pressure Loss">
+                                Total SP (<span class="unit-p">Pa</span>)
+                            </th>
+                            <th class="p-2.5 w-[4%] text-center">Aspect</th>
+                            <th class="p-2.5 w-[5%] text-center">Status</th>
+                            <th class="p-2.5 w-[4%] text-center no-print">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ductTableBody" class="divide-y divide-neutral-900 bg-neutral-950">
+                        <!-- Dynamic Rows Generated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 gap-6">
+            <section class="bg-neutral-950 rounded-xl shadow-xl border border-neutral-900 p-5 no-print">
+                <div class="flex items-center justify-between border-b border-neutral-900 pb-2 mb-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-vector-square text-brand-400"></i> Visualisasi Penampang Ducting & Analisis Hart & Cooley
+                    </h3>
+                    <div class="text-xs text-neutral-400">
+                        Klik baris pada tabel di atas untuk memeriksa detail spesifikasi
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div class="bg-black rounded-xl p-4 flex flex-col items-center justify-center min-h-[210px] border border-neutral-900 relative overflow-hidden shadow-inner">
+                        <div id="visualizerTag" class="absolute top-2 left-3 text-[10px] font-mono text-brand-400 bg-brand-950/80 px-2 py-0.5 rounded border border-brand-800/60">
+                            TAG: -
+                        </div>
+                        <svg id="ductSvg" class="w-full h-44 max-w-[280px]" viewBox="0 0 300 200">
+                            <!-- Dynamic SVG shapes -->
+                        </svg>
+                    </div>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="p-3 bg-black rounded-lg border border-neutral-900">
+                            <span class="text-neutral-400 block text-[10px] uppercase tracking-wider font-semibold">Ukuran Rectangular Duct Standar (W x H)</span>
+                            <div class="flex justify-between items-baseline mt-1">
+                                <span id="visRectSize" class="text-base font-extrabold text-brand-400">-</span>
+                                <span id="visAspect" class="text-xs font-semibold text-slate-300">Aspect Ratio: -</span>
+                            </div>
+                            <p id="visGauge" class="text-[11px] text-neutral-400 font-medium mt-1">Rekomendasi Tebal Seng BJLS: -</p>
+                        </div>
+
+                        <div class="p-3 bg-black rounded-lg border border-neutral-900">
+                            <span class="text-neutral-400 block text-[10px] uppercase tracking-wider font-semibold">Ukuran Round Duct Standar (Ø Diameter)</span>
+                            <div class="flex justify-between items-baseline mt-1">
+                                <span id="visRoundSize" class="text-base font-extrabold text-teal-400">-</span>
+                                <span id="visEqDia" class="text-xs font-semibold text-slate-300">Equiv Dia: -</span>
+                            </div>
+                            <p class="text-[11px] text-neutral-500 mt-0.5">Berdasarkan rumus Hart & Cooley Ductulator (Darcy-Weisbach & Colebrook).</p>
+                        </div>
+
+                        <div class="p-3 bg-amber-950/20 rounded-lg border border-amber-900/40">
+                            <span class="text-amber-400 block text-[10px] uppercase tracking-wider font-bold">Evaluasi Hasil Sizing & Tekanan</span>
+                            <div class="flex justify-between items-center text-xs mt-1">
+                                <span class="text-neutral-400">Hasil Velocity Aktual (V):</span>
+                                <span id="visActualVel" class="font-bold text-amber-300 text-sm">-</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs mt-0.5">
+                                <span class="text-neutral-400">Total Static Pressure Drop (&#916;P<sub>s</sub>):</span>
+                                <span id="visTotalLoss" class="font-bold text-amber-400">-</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs mt-0.5 pt-1 border-t border-amber-900/30">
+                                <span class="text-neutral-400">Velocity Pressure (P<sub>v</sub>):</span>
+                                <span id="visVelPress" class="font-semibold text-slate-300">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="text-center text-xs text-neutral-500 py-4 border-t border-neutral-900 mt-8 space-y-1">
+            <p>MASTER DUCT SIZER — Menggunakan Logika Perhitungan Standar Hart & Cooley Ductulator & ASHRAE.</p>
+            <p class="font-semibold text-neutral-400">&copy; <span id="footerAuthor">Mas By</span> 2026. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        let currentUnit = 'metric';
+        let selectedRowIndex = 0;
+
+        let projectMetadata = {
+            projectName: 'Gedung Perkantoran Utama',
+            authorName: 'Hasby Khairul Lifie',
+            reportDate: new Date().toISOString().split('T')[0]
+        };
+
+        const applicationPresets = {
+            'SA_MAIN': { name: 'Supply Air Main' },
+            'SA_BRANCH': { name: 'Supply Air Branch' },
+            'RA_MAIN': { name: 'Return Air Main' },
+            'RA_BRANCH': { name: 'Return Air Branch' },
+            'FA': { name: 'Fresh Air Duct' },
+            'TE': { name: 'Toilet Exhaust' },
+            'KE': { name: 'Kitchen Exhaust' },
+            'SE': { name: 'Smoke Extraction' },
+            'CUSTOM': { name: 'Custom / Lainnya' }
+        };
+
+        const STANDARD_RECT_SIZES_METRIC = [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1800, 2000, 2200, 2400];
+        const STANDARD_RECT_SIZES_IMPERIAL = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 88, 96];
+
+        let ductData = [
+            { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 3500, length: 25 },
+            { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 6.5, airflow: 1200, length: 15 },
+            { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.75, airflow: 3000, length: 20 },
+            { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 10.0, airflow: 2500, length: 30 },
+            { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.65, airflow: 1800, length: 12 }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('inputReportDate').value = projectMetadata.reportDate;
+            updateProjectMetadata();
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        });
+
+        function updateProjectMetadata() {
+            const pName = document.getElementById('inputProjectName').value || '-';
+            const aName = document.getElementById('inputAuthorName').value || '-';
+            const rDate = document.getElementById('inputReportDate').value || '-';
+
+            projectMetadata.projectName = pName;
+            projectMetadata.authorName = aName;
+            projectMetadata.reportDate = rDate;
+
+            document.getElementById('printProjectName').textContent = pName;
+            document.getElementById('printAuthorName').textContent = aName;
+            document.getElementById('printReportDate').textContent = rDate;
+            document.getElementById('footerAuthor').textContent = aName.toUpperCase();
+        }
+
+        function setUnitSystem(unit) {
+            if (currentUnit === unit) return;
+            
+            if (unit === 'imperial') {
+                ductData = ductData.map(row => ({
+                    ...row,
+                    airflow: Math.round(row.airflow * 0.588578),
+                    inputValue: row.method === 'headloss' 
+                        ? parseFloat((row.inputValue * 0.12068).toFixed(2))
+                        : parseFloat((row.inputValue * 196.85).toFixed(0)),
+                    length: Math.round(row.length * 3.28084)
+                }));
+                document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-slate-200 transition-all';
+                document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30';
+            } else {
+                ductData = ductData.map(row => ({
+                    ...row,
+                    airflow: Math.round(row.airflow / 0.588578),
+                    inputValue: row.method === 'headloss' 
+                        ? parseFloat((row.inputValue / 0.12068).toFixed(2))
+                        : parseFloat((row.inputValue / 196.85).toFixed(1)),
+                    length: Math.round(row.length / 3.28084)
+                }));
+                document.getElementById('unitImperialBtn').className = 'px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-slate-200 transition-all';
+                document.getElementById('unitMetricBtn').className = 'px-3 py-1.5 rounded-md font-semibold transition-all bg-brand-600 text-white shadow-md shadow-brand-600/30';
+            }
+
+            currentUnit = unit;
+            updateUnitLabels();
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function updateUnitLabels() {
+            const qLabels = document.querySelectorAll('.unit-q');
+            const vLabels = document.querySelectorAll('.unit-v');
+            const hlLabels = document.querySelectorAll('.unit-hl');
+            const pLabels = document.querySelectorAll('.unit-p');
+            const lenLabels = document.querySelectorAll('.unit-len');
+
+            qLabels.forEach(el => el.innerHTML = currentUnit === 'metric' ? 'm&#179;/h' : 'CFM');
+            vLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm/s' : 'FPM');
+            hlLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft');
+            pLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'Pa' : 'in.wg');
+            lenLabels.forEach(el => el.textContent = currentUnit === 'metric' ? 'm' : 'ft');
+        }
+
+        function roundToStandardSize(val, isMetric) {
+            const standards = isMetric ? STANDARD_RECT_SIZES_METRIC : STANDARD_RECT_SIZES_IMPERIAL;
+            for (let size of standards) {
+                if (size >= val) return size;
+            }
+            return standards[standards.length - 1];
+        }
+
+        function calculateDuctRow(row) {
+            const Q = parseFloat(row.airflow) || 0;
+            const val = parseFloat(row.inputValue) || (row.method === 'headloss' ? 0.85 : (currentUnit === 'metric' ? 6.0 : 1200));
+            const L = parseFloat(row.length) || 0;
+
+            let areaReq = 0; 
+            let height = 0;
+            let width = 0;
+            let roundDia = 0;
+            let actualAreaRect = 0;
+            let actualVelRect = 0;
+            let equivDia = 0;
+            let spRate = 0; 
+            let totalStaticPressure = 0; 
+            let velPressure = 0; 
+
+            if (currentUnit === 'metric') {
+                const Q_m3s = Q / 3600;
+
+                if (row.method === 'headloss') {
+                    const targetHL = val;
+                    let estVel = 6.0;
+                    for (let iter = 0; iter < 6; iter++) {
+                        const estArea = Q_m3s / estVel;
+                        const estDe = Math.sqrt((4 * estArea) / Math.PI);
+                        const Re = (1.204 * estVel * estDe) / 0.00001825;
+                        const e_over_D = 0.00009 / (estDe || 0.001);
+                        const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
+                        const pDyn = 0.5 * 1.204 * Math.pow(estVel, 2);
+                        const calcHL = (f / (estDe || 0.001)) * pDyn;
+                        if (calcHL > 0) {
+                            estVel = estVel * Math.pow(targetHL / calcHL, 0.2);
+                        }
+                    }
+                    actualVelRect = Math.max(0.5, estVel);
+                    areaReq = Q_m3s / actualVelRect;
+                } else {
+                    actualVelRect = Math.max(0.5, val);
+                    areaReq = Q_m3s / actualVelRect;
+                }
+
+                const rawRoundDia = Math.sqrt((4 * areaReq) / Math.PI) * 1000;
+                roundDia = roundToStandardSize(rawRoundDia, true);
+
+                const rawH_mm = Math.sqrt(areaReq / 1.25) * 1000;
+                height = roundToStandardSize(rawH_mm, true);
+
+                const rawW_mm = (areaReq * 1000000) / height;
+                width = roundToStandardSize(rawW_mm, true);
+
+                if (width < height) {
+                    const temp = width;
+                    width = height;
+                    height = temp;
+                }
+
+                actualAreaRect = (width * height) / 1000000;
+                actualVelRect = Q_m3s / (actualAreaRect || 0.0001);
+
+                equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
+                const De_m = equivDia / 1000;
+
+                const Re = (1.204 * actualVelRect * De_m) / 0.00001825;
+                const e_over_D = 0.00009 / (De_m || 0.001);
+                const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
+
+                velPressure = 0.5 * 1.204 * Math.pow(actualVelRect, 2);
+                spRate = (f / (De_m || 0.001)) * velPressure;
+                totalStaticPressure = spRate * L;
+
+            } else {
+                if (row.method === 'headloss') {
+                    const targetHL = val;
+                    let estVel = 1200;
+                    for (let iter = 0; iter < 6; iter++) {
+                        const estArea = Q / estVel;
+                        const estDe = Math.sqrt((4 * estArea * 144) / Math.PI) / 12;
+                        const Re = (1.204 * (estVel * 0.00508) * (estDe * 0.3048)) / 0.00001825;
+                        const e_over_D = 0.0035 / (estDe * 12 || 1);
+                        const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
+                        const pDyn = Math.pow(estVel / 4005, 2);
+                        const calcHL = f * (1200 / (estDe * 12 || 1)) * pDyn;
+                        if (calcHL > 0) {
+                            estVel = estVel * Math.pow(targetHL / calcHL, 0.2);
+                        }
+                    }
+                    actualVelRect = Math.max(100, estVel);
+                    areaReq = Q / actualVelRect;
+                } else {
+                    actualVelRect = Math.max(100, val);
+                    areaReq = Q / actualVelRect;
+                }
+
+                const rawRoundDia = Math.sqrt((4 * areaReq * 144) / Math.PI);
+                roundDia = roundToStandardSize(rawRoundDia, false);
+
+                const rawH_in = Math.sqrt((areaReq * 144) / 1.25);
+                height = roundToStandardSize(rawH_in, false);
+
+                const rawW_in = (areaReq * 144) / height;
+                width = roundToStandardSize(rawW_in, false);
+
+                if (width < height) {
+                    const temp = width;
+                    width = height;
+                    height = temp;
+                }
+
+                actualAreaRect = (width * height) / 144;
+                actualVelRect = Q / (actualAreaRect || 0.0001);
+
+                equivDia = 1.30 * Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25);
+                velPressure = Math.pow(actualVelRect / 4005, 2);
+
+                const Re = (1.204 * (actualVelRect * 0.00508) * (equivDia * 0.0254)) / 0.00001825;
+                const e_over_D = 0.0035 / (equivDia || 0.1);
+                const f = 0.11 * Math.pow(e_over_D + (68 / (Re || 1)), 0.25);
+
+                spRate = f * (1200 / (equivDia || 0.1)) * velPressure;
+                totalStaticPressure = (spRate / 100) * L;
+            }
+
+            const aspectRatio = width / (height || 1);
+            const maxDim = Math.max(width, height);
+            let gauge = 'BJLS 50 (0.50 mm / 26 Ga)';
+            if (currentUnit === 'metric') {
+                if (maxDim > 2100) gauge = 'BJLS 120 (1.20 mm / 18 Ga)';
+                else if (maxDim > 1500) gauge = 'BJLS 100 (1.00 mm / 20 Ga)';
+                else if (maxDim > 750) gauge = 'BJLS 80 (0.80 mm / 22 Ga)';
+                else if (maxDim > 300) gauge = 'BJLS 60 (0.60 mm / 24 Ga)';
+            } else {
+                if (maxDim > 84) gauge = 'BJLS 120 (18 Ga)';
+                else if (maxDim > 60) gauge = 'BJLS 100 (20 Ga)';
+                else if (maxDim > 30) gauge = 'BJLS 80 (22 Ga)';
+                else if (maxDim > 12) gauge = 'BJLS 60 (24 Ga)';
+            }
+
+            return {
+                width,
+                height,
+                roundDia,
+                actualVelRect,
+                equivDia,
+                spRate,
+                totalStaticPressure,
+                velPressure,
+                aspectRatio,
+                gauge
+            };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('ductTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const firstRowMethod = ductData.length > 0 ? ductData[selectedRowIndex].method : 'headloss';
+            const hlLabelStr = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft';
+            const vLabelStr = currentUnit === 'metric' ? 'm/s' : 'FPM';
+
+            document.getElementById('dynamicHeaderInput').innerHTML = firstRowMethod === 'headloss' 
+                ? `Target HL (${hlLabelStr}) *` 
+                : `Design Vel (${vLabelStr}) *`;
+
+            document.getElementById('dynamicHeaderResult').innerHTML = firstRowMethod === 'headloss'
+                ? `Hasil Velocity (${vLabelStr})`
+                : `Hasil Headloss (${hlLabelStr})`;
+
+            ductData.forEach((row, index) => {
+                const calc = calculateDuctRow(row);
+                const isSelected = index === selectedRowIndex;
+                const tr = document.createElement('tr');
+                tr.id = `duct-row-${index}`;
+                tr.className = `transition-all cursor-pointer ${isSelected ? 'bg-neutral-900 border-l-4 border-brand-500 font-medium text-white' : 'hover:bg-neutral-900/50 text-slate-200'}`;
+                
+                tr.onclick = (e) => {
+                    if (['INPUT', 'SELECT', 'BUTTON', 'I'].includes(e.target.tagName)) return;
+                    selectedRowIndex = index;
+                    renderTable();
+                    renderVisualizer(index);
+                };
+
+                const isMethodHL = row.method === 'headloss';
+
+                tr.innerHTML = `
+                    <td class="p-2 text-center font-bold text-neutral-400">${index + 1}</td>
+                    
+                    <td class="p-1.5">
+                        <input type="text" value="${row.tag}" 
+                            oninput="handleCellInput(${index}, 'tag', this.value)"
+                            class="w-full px-2 py-1 bg-black border border-neutral-800 rounded focus:border-brand-500 outline-none text-xs truncate font-semibold text-slate-100">
+                    </td>
+
+                    <td class="p-1.5">
+                        <select onchange="handlePresetChange(${index}, this.value)"
+                            class="w-full px-1.5 py-1 bg-black border border-neutral-800 text-slate-200 rounded focus:border-brand-500 outline-none text-xs truncate">
+                            ${Object.keys(applicationPresets).map(pKey => `
+                                <option value="${pKey}" ${row.app === pKey ? 'selected' : ''}>
+                                    ${applicationPresets[pKey].name}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </td>
+
+                    <td class="p-1.5 bg-sky-950/20 border-x border-neutral-900">
+                        <select onchange="handleMethodChange(${index}, this.value)"
+                            class="w-full px-1.5 py-1 bg-black border border-sky-900 text-sky-200 rounded focus:border-brand-500 outline-none text-[11px] font-semibold">
+                            <option value="headloss" ${isMethodHL ? 'selected' : ''}>Target Headloss</option>
+                            <option value="velocity" ${!isMethodHL ? 'selected' : ''}>Design Velocity</option>
+                        </select>
+                    </td>
+
+                    <td class="p-1.5 bg-brand-950/30 border-r border-neutral-900">
+                        <input type="number" value="${row.airflow}" 
+                            oninput="handleCellInput(${index}, 'airflow', this.value)"
+                            placeholder="Airflow..."
+                            class="w-full px-2 py-1 border border-brand-500/50 rounded focus:border-brand-400 outline-none text-right text-xs font-bold text-brand-300 bg-black">
+                    </td>
+
+                    <td class="p-1.5 bg-brand-950/30 border-r border-neutral-900">
+                        <input type="number" value="${row.inputValue}" step="${isMethodHL ? '0.05' : '0.5'}"
+                            oninput="handleCellInput(${index}, 'inputValue', this.value)"
+                            placeholder="${isMethodHL ? 'Headloss...' : 'Velocity...'}"
+                            class="w-full px-2 py-1 border border-brand-500/50 rounded focus:border-brand-400 outline-none text-right text-xs font-bold text-brand-300 bg-black">
+                    </td>
+
+                    <td class="p-1.5">
+                        <input type="number" value="${row.length}" min="0" step="1"
+                            oninput="handleCellInput(${index}, 'length', this.value)"
+                            class="w-full px-2 py-1 bg-black border border-neutral-800 text-slate-200 rounded focus:border-brand-500 outline-none text-right text-xs font-semibold">
+                    </td>
+
+                    <td class="p-2 text-center bg-sky-950/20 border-x border-neutral-900">
+                        <span id="res-rect-${index}" class="font-extrabold text-sky-400 text-xs sm:text-sm whitespace-nowrap">
+                            ${calc.width} x ${calc.height}
+                        </span>
+                    </td>
+
+                    <td class="p-2 text-center bg-teal-950/20">
+                        <span id="res-round-${index}" class="font-extrabold text-teal-400 text-xs sm:text-sm whitespace-nowrap">
+                            &#216; ${calc.roundDia}
+                        </span>
+                    </td>
+
+                    <td id="res-dynamic-${index}" class="p-2 text-right font-extrabold text-amber-300 bg-amber-950/30">
+                        ${isMethodHL ? calc.actualVelRect.toFixed(2) : calc.spRate.toFixed(2)}
+                    </td>
+
+                    <td id="res-sprate-${index}" class="p-2 text-right font-semibold text-neutral-300">
+                        ${calc.spRate.toFixed(2)}
+                    </td>
+
+                    <td id="res-totalsp-${index}" class="p-2 text-right font-semibold text-amber-400 bg-amber-950/20">
+                        ${calc.totalStaticPressure.toFixed(1)}
+                    </td>
+
+                    <td id="res-aspect-${index}" class="p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-400 font-bold' : 'text-neutral-400'}">
+                        ${calc.aspectRatio.toFixed(1)}:1
+                    </td>
+
+                    <td id="res-status-${index}" class="p-2 text-center">
+                        ${getStatusBadgeHTML(calc, row)}
+                    </td>
+
+                    <td class="p-1.5 text-center no-print">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="duplicateRow(${index})" title="Duplikasi Baris" class="p-1 text-neutral-500 hover:text-brand-400 transition-all">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="deleteRow(${index})" title="Hapus Baris" class="p-1 text-neutral-500 hover:text-rose-400 transition-all">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getStatusBadgeHTML(calc, row) {
+            if (calc.aspectRatio > 4.0) {
+                return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-950 text-amber-400 border border-amber-800" title="Aspect ratio > 4:1">AR High</span>';
+            } else if (currentUnit === 'metric' && calc.actualVelRect > 12.0) {
+                return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-400 border border-rose-800">Vel High</span>';
+            }
+            return '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>';
+        }
+
+        function handleCellInput(index, field, value) {
+            if (field === 'tag') {
+                ductData[index].tag = value;
+            } else {
+                const parsed = parseFloat(value);
+                ductData[index][field] = isNaN(parsed) ? 0 : parsed;
+            }
+
+            updateRowOutputs(index);
+            if (index === selectedRowIndex) {
+                renderVisualizer(index);
+            }
+        }
+
+        function handleMethodChange(index, method) {
+            ductData[index].method = method;
+            if (method === 'headloss') {
+                ductData[index].inputValue = currentUnit === 'metric' ? 0.85 : 0.08;
+            } else {
+                ductData[index].inputValue = currentUnit === 'metric' ? 6.0 : 1200;
+            }
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function updateRowOutputs(index) {
+            const row = ductData[index];
+            const calc = calculateDuctRow(row);
+            const isMethodHL = row.method === 'headloss';
+
+            const rectEl = document.getElementById(`res-rect-${index}`);
+            if (rectEl) rectEl.textContent = `${calc.width} x ${calc.height}`;
+
+            const roundEl = document.getElementById(`res-round-${index}`);
+            if (roundEl) roundEl.innerHTML = `&#216; ${calc.roundDia}`;
+
+            const dynResEl = document.getElementById(`res-dynamic-${index}`);
+            if (dynResEl) dynResEl.textContent = isMethodHL ? calc.actualVelRect.toFixed(2) : calc.spRate.toFixed(2);
+
+            const spRateEl = document.getElementById(`res-sprate-${index}`);
+            if (spRateEl) spRateEl.textContent = calc.spRate.toFixed(2);
+
+            const totalSpEl = document.getElementById(`res-totalsp-${index}`);
+            if (totalSpEl) totalSpEl.textContent = calc.totalStaticPressure.toFixed(1);
+
+            const aspectEl = document.getElementById(`res-aspect-${index}`);
+            if (aspectEl) {
+                aspectEl.textContent = `${calc.aspectRatio.toFixed(1)}:1`;
+                aspectEl.className = `p-2 text-center text-xs font-semibold ${calc.aspectRatio > 4.0 ? 'text-amber-400 font-bold' : 'text-neutral-400'}`;
+            }
+
+            const statusEl = document.getElementById(`res-status-${index}`);
+            if (statusEl) statusEl.innerHTML = getStatusBadgeHTML(calc, row);
+        }
+
+        function handlePresetChange(index, appKey) {
+            ductData[index].app = appKey;
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function addRow() {
+            const newId = ductData.length > 0 ? Math.max(...ductData.map(d => d.id)) + 1 : 1;
+            const newRow = {
+                id: newId,
+                tag: `DUCT-0${newId}`,
+                app: 'SA_MAIN',
+                method: 'headloss',
+                inputValue: currentUnit === 'metric' ? 0.85 : 0.08,
+                airflow: currentUnit === 'metric' ? 2000 : 1200,
+                length: currentUnit === 'metric' ? 10 : 30
+            };
+            ductData.push(newRow);
+            selectedRowIndex = ductData.length - 1;
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function duplicateRow(index) {
+            const source = ductData[index];
+            const newRow = {
+                ...source,
+                id: Math.max(...ductData.map(d => d.id)) + 1,
+                tag: `${source.tag}-COPY`
+            };
+            ductData.splice(index + 1, 0, newRow);
+            selectedRowIndex = index + 1;
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function deleteRow(index) {
+            if (ductData.length <= 1) return;
+            ductData.splice(index, 1);
+            if (selectedRowIndex >= ductData.length) {
+                selectedRowIndex = ductData.length - 1;
+            }
+            renderTable();
+            renderVisualizer(selectedRowIndex);
+        }
+
+        function clearAllRows() {
+            ductData = [{
+                id: 1, tag: 'NEW-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 1000, length: 10
+            }];
+            selectedRowIndex = 0;
+            renderTable();
+            renderVisualizer(0);
+        }
+
+        function loadSampleData() {
+            if (currentUnit === 'metric') {
+                ductData = [
+                    { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.85, airflow: 3500, length: 25 },
+                    { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 6.5, airflow: 1200, length: 15 },
+                    { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.75, airflow: 3000, length: 20 },
+                    { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 10.0, airflow: 2500, length: 30 },
+                    { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.65, airflow: 1800, length: 12 }
+                ];
+            } else {
+                ductData = [
+                    { id: 1, tag: 'SA-MAIN-01', app: 'SA_MAIN', method: 'headloss', inputValue: 0.08, airflow: 2000, length: 80 },
+                    { id: 2, tag: 'SA-BRANCH-01', app: 'SA_BRANCH', method: 'velocity', inputValue: 1200, airflow: 700, length: 45 },
+                    { id: 3, tag: 'RA-MAIN-01', app: 'RA_MAIN', method: 'headloss', inputValue: 0.07, airflow: 1800, length: 65 },
+                    { id: 4, tag: 'KE-EXHAUST-01', app: 'KE', method: 'velocity', inputValue: 2000, airflow: 1500, length: 100 },
+                    { id: 5, tag: 'FA-FRESH-01', app: 'FA', method: 'headloss', inputValue: 0.06, airflow: 1000, length: 40 }
+                ];
+            }
+            selectedRowIndex = 0;
+            renderTable();
+            renderVisualizer(0);
+            showToast('Data contoh Hart & Cooley berhasil dimuat!', 'info');
+        }
+
+        function renderVisualizer(index) {
+            if (!ductData[index]) return;
+            const row = ductData[index];
+            const calc = calculateDuctRow(row);
+
+            document.getElementById('visualizerTag').textContent = `TAG: ${row.tag} (${row.method === 'headloss' ? 'Metode: Target Headloss (H&C)' : 'Metode: Design Velocity'})`;
+            document.getElementById('visRectSize').textContent = `${calc.width} x ${calc.height} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visRoundSize').innerHTML = `&#216; ${calc.roundDia} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visAspect').textContent = `Aspect Ratio: ${calc.aspectRatio.toFixed(1)}:1`;
+            document.getElementById('visEqDia').textContent = `Equiv Dia: ${Math.round(calc.equivDia)} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+            document.getElementById('visGauge').textContent = `Rekomendasi Tebal Seng: ${calc.gauge}`;
+            
+            document.getElementById('visActualVel').textContent = `${calc.actualVelRect.toFixed(2)} ${currentUnit === 'metric' ? 'm/s' : 'FPM'}`;
+            document.getElementById('visTotalLoss').textContent = `${calc.totalStaticPressure.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'} (${row.length} ${currentUnit === 'metric' ? 'm' : 'ft'})`;
+            document.getElementById('visVelPress').textContent = `${calc.velPressure.toFixed(1)} ${currentUnit === 'metric' ? 'Pa' : 'in.wg'}`;
+
+            const svg = document.getElementById('ductSvg');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const maxBoxDim = Math.max(calc.width, calc.height, calc.roundDia);
+            const scale = 110 / (maxBoxDim || 1);
+
+            const rectW = calc.width * scale;
+            const rectH = calc.height * scale;
+            const roundR = (calc.roundDia * scale) / 2;
+
+            const rectX = 80 - rectW / 2;
+            const rectY = 100 - rectH / 2;
+
+            const roundCenterX = 220;
+            const roundCenterY = 100;
+
+            svg.innerHTML = `
+                <defs>
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#222222" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" opacity="0.6" />
+
+                <g>
+                    <rect x="${rectX}" y="${rectY}" width="${rectW}" height="${rectH}" 
+                        fill="#0284c7" fill-opacity="0.3" stroke="#38bdf8" stroke-width="2" rx="4" />
+                    <text x="${rectX + rectW / 2}" y="${Math.max(rectY - 6, 12)}" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="bold">
+                        W: ${calc.width}
+                    </text>
+                    <text x="${Math.max(rectX - 6, 8)}" y="${rectY + rectH / 2 + 3}" text-anchor="end" fill="#38bdf8" font-size="10" font-weight="bold">
+                        H: ${calc.height}
+                    </text>
+                    <text x="80" y="185" text-anchor="middle" fill="#a3a3a3" font-size="9" font-weight="500">RECTANGULAR STANDAR</text>
+                </g>
+
+                <g>
+                    <circle cx="${roundCenterX}" cy="${roundCenterY}" r="${roundR}" 
+                        fill="#0d9488" fill-opacity="0.3" stroke="#2dd4bf" stroke-width="2" />
+                    <line x1="${roundCenterX - roundR}" y1="${roundCenterY}" x2="${roundCenterX + roundR}" y2="${roundCenterY}" 
+                        stroke="#2dd4bf" stroke-dasharray="3,3" stroke-width="1.5" />
+                    <text x="${roundCenterX}" y="${roundCenterY - 6}" text-anchor="middle" fill="#2dd4bf" font-size="10" font-weight="bold">
+                        &#216; ${calc.roundDia}
+                    </text>
+                    <text x="220" y="185" text-anchor="middle" fill="#a3a3a3" font-size="9" font-weight="500">ROUND STANDAR</text>
+                </g>
+            `;
+        }
+
+        function triggerExcelImport() {
+            document.getElementById('excelFileInput').click();
+        }
+
+        function importFromExcel(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (jsonData.length < 2) {
+                        showToast('File Excel kosong atau format tidak sesuai.', 'error');
+                        return;
+                    }
+
+                    let newDucts = [];
+                    let headerIndex = -1;
+
+                    for (let r = 0; r < Math.min(jsonData.length, 10); r++) {
+                        const rowStr = jsonData[r].join(' ').toLowerCase();
+                        if (rowStr.includes('tag') || rowStr.includes('airflow') || rowStr.includes('metode') || rowStr.includes('peruntukan')) {
+                            headerIndex = r;
+                            break;
+                        }
+                    }
+
+                    const startIndex = headerIndex >= 0 ? headerIndex + 1 : 1;
+
+                    for (let i = startIndex; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length === 0 || !row[0]) continue;
+
+                        const firstCell = String(row[0]).toLowerCase();
+                        if (firstCell.includes('total') || firstCell.includes('summary')) continue;
+
+                        let tag = String(row[0] || `DUCT-0${i}`);
+                        let appKey = 'SA_MAIN';
+                        let rawApp = String(row[1] || '').toUpperCase();
+
+                        if (rawApp.includes('SUPPLY') && rawApp.includes('BRANCH')) appKey = 'SA_BRANCH';
+                        else if (rawApp.includes('SUPPLY') || rawApp.includes('SA')) appKey = 'SA_MAIN';
+                        else if (rawApp.includes('RETURN') && rawApp.includes('BRANCH')) appKey = 'RA_BRANCH';
+                        else if (rawApp.includes('RETURN') || rawApp.includes('RA')) appKey = 'RA_MAIN';
+                        else if (rawApp.includes('FRESH') || rawApp.includes('FA')) appKey = 'FA';
+                        else if (rawApp.includes('KITCHEN') || rawApp.includes('KE')) appKey = 'KE';
+                        else if (rawApp.includes('TOILET') || rawApp.includes('TE')) appKey = 'TE';
+                        else if (rawApp.includes('SMOKE') || rawApp.includes('SE')) appKey = 'SE';
+
+                        let method = 'headloss';
+                        let rawMethod = String(row[2] || '').toLowerCase();
+                        if (rawMethod.includes('vel') || rawMethod.includes('kecepatan')) method = 'velocity';
+
+                        let airflow = parseFloat(row[3] || row[2]) || (currentUnit === 'metric' ? 2000 : 1200);
+                        let inputValue = parseFloat(row[4] || row[3]) || (currentUnit === 'metric' ? 0.85 : 0.08);
+                        let length = parseFloat(row[5] || row[4]) || (currentUnit === 'metric' ? 10 : 30);
+
+                        newDucts.push({
+                            id: i,
+                            tag: tag,
+                            app: appKey,
+                            method: method,
+                            inputValue: inputValue,
+                            airflow: airflow,
+                            length: length
+                        });
+                    }
+
+                    if (newDucts.length > 0) {
+                        ductData = newDucts;
+                        selectedRowIndex = 0;
+                        renderTable();
+                        renderVisualizer(0);
+                        showToast(`Berhasil meng-import ${newDucts.length} segmen ducting!`, 'success');
+                    } else {
+                        showToast('Tidak ada data baris valid yang terdeteksi.', 'error');
+                    }
+                } catch (err) {
+                    console.error('Error importing Excel:', err);
+                    showToast('Gagal meng-import file Excel. Pastikan format file sesuai.', 'error');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportToExcel() {
+            const qUnit = currentUnit === 'metric' ? 'm3/h' : 'CFM';
+            const hlUnit = currentUnit === 'metric' ? 'Pa/m' : 'in.wg/100ft';
+            const vUnit = currentUnit === 'metric' ? 'm/s' : 'FPM';
+            const lenUnit = currentUnit === 'metric' ? 'm' : 'ft';
+            const dimUnit = currentUnit === 'metric' ? 'mm' : 'inch';
+            const pressUnit = currentUnit === 'metric' ? 'Pa' : 'in.wg';
+
+            let excelData = [
+                ["MASTER DUCT SIZER - HART & COOLEY CALCULATION REPORT"],
+                ["Nama Project:", projectMetadata.projectName],
+                ["Penyusun:", projectMetadata.authorName],
+                ["Tanggal Laporan:", projectMetadata.reportDate],
+                ["Sistem Satuan:", currentUnit.toUpperCase()],
+                [],
+                [
+                    "No",
+                    "Tag / Kode",
+                    "Peruntukan",
+                    "Metode Sizing",
+                    `Airflow (${qUnit})`,
+                    "Input Nilai (HL / Vel)",
+                    `Panjang (${lenUnit})`,
+                    `Lebar W (${dimUnit})`,
+                    `Tinggi H (${dimUnit})`,
+                    `Round Dia (${dimUnit})`,
+                    `Hasil Sizing (Vel/HL)`,
+                    `SP Rate (${hlUnit})`,
+                    `Total Static Pressure (${pressUnit})`,
+                    "Aspect Ratio",
+                    "BJLS Gauge",
+                    "Status"
+                ]
+            ];
+
+            let totalAirflow = 0;
+            let totalLength = 0;
+            let totalStaticPressure = 0;
+
+            ductData.forEach((row, i) => {
+                const calc = calculateDuctRow(row);
+                const appName = applicationPresets[row.app] ? applicationPresets[row.app].name : row.app;
+                const isMethodHL = row.method === 'headloss';
+                
+                totalAirflow += parseFloat(row.airflow) || 0;
+                totalLength += parseFloat(row.length) || 0;
+                totalStaticPressure += calc.totalStaticPressure;
+
+                excelData.push([
+                    i + 1,
+                    row.tag,
+                    appName,
+                    isMethodHL ? 'Target Headloss' : 'Design Velocity',
+                    row.airflow,
+                    row.inputValue,
+                    row.length,
+                    calc.width,
+                    calc.height,
+                    calc.roundDia,
+                    isMethodHL ? parseFloat(calc.actualVelRect.toFixed(2)) : parseFloat(calc.spRate.toFixed(2)),
+                    parseFloat(calc.spRate.toFixed(2)),
+                    parseFloat(calc.totalStaticPressure.toFixed(1)),
+                    `${calc.aspectRatio.toFixed(1)}:1`,
+                    calc.gauge,
+                    calc.aspectRatio > 4.0 ? 'AR High' : 'OK'
+                ]);
+            });
+
+            excelData.push([
+                "TOTAL",
+                `${ductData.length} Segmen`,
+                "-",
+                "-",
+                totalAirflow,
+                "-",
+                totalLength,
+                "-",
+                "-",
+                "-",
+                "-",
+                "-",
+                parseFloat(totalStaticPressure.toFixed(1)),
+                "-",
+                "-",
+                "-"
+            ]);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+            worksheet['!cols'] = [
+                { wch: 5 }, { wch: 18 }, { wch: 22 }, { wch: 18 }, { wch: 15 }, 
+                { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, 
+                { wch: 16 }, { wch: 15 }, { wch: 18 }, { wch: 12 }, { wch: 25 }, { wch: 10 }
+            ];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Hart & Cooley Calculations");
+
+            const safeProjectName = projectMetadata.projectName.replace(/[^a-zA-Z0-9_-]/g, '_');
+            const fileName = `HartAndCooley_DuctSizer_${safeProjectName}_${projectMetadata.reportDate}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+
+            showToast('Laporan Excel berhasil di-export!', 'success');
+        }
+
+        function downloadExcelTemplate() {
+            const templateData = [
+                ["Tag / Kode", "Peruntukan Ducting", "Metode (headloss/velocity)", "Airflow (m3/h)", "Nilai Input (HL/Vel)", "Panjang (m)"],
+                ["SA-MAIN-01", "Supply Air Main", "headloss", 3500, 0.85, 25],
+                ["SA-BRANCH-01", "Supply Air Branch", "velocity", 1200, 6.5, 15],
+                ["RA-MAIN-01", "Return Air Main", "headloss", 3000, 0.75, 20],
+                ["KE-EXHAUST-01", "Kitchen Exhaust", "velocity", 2500, 10.0, 30]
+            ];
+
+            const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+            worksheet['!cols'] = [{ wch: 16 }, { wch: 20 }, { wch: 22 }, { wch: 15 }, { wch: 20 }, { wch: 12 }];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Template Import");
+
+            XLSX.writeFile(workbook, "Template_Import_Hart_And_Cooley_Sizer.xlsx");
+            showToast('Template Excel berhasil diunduh!', 'info');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const title = document.getElementById('toastTitle');
+            const msg = document.getElementById('toastMessage');
+            const icon = document.getElementById('toastIcon');
+
+            if (!toast) return;
+
+            msg.textContent = message;
+            if (type === 'success') {
+                title.textContent = 'Berhasil';
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-xl mt-0.5';
+                toast.style.borderColor = '#10b981';
+            } else if (type === 'error') {
+                title.textContent = 'Gagal';
+                icon.className = 'fa-solid fa-circle-exclamation text-rose-400 text-xl mt-0.5';
+                toast.style.borderColor = '#f43f5e';
+            } else {
+                title.textContent = 'Informasi';
+                icon.className = 'fa-solid fa-circle-info text-sky-400 text-xl mt-0.5';
+                toast.style.borderColor = '#0284c7';
+            }
+
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                hideToast();
+            }, 4000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toastNotification');
+            if (toast) toast.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
