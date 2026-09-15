@@ -8,17 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #000000; }
         @media print {
-            body { background: white !important; }
+            body { background: white !important; color: black !important; }
             .no-print { display: none !important; }
             .print-shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
+<body class="bg-black text-neutral-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
 
-    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 sticky top-0 z-50 shadow-md no-print">
+    <header class="bg-neutral-950 border-b border-neutral-800 py-4 px-6 sticky top-0 z-50 shadow-md no-print">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/20">
@@ -26,11 +26,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white">HVAC Air Terminal Calculator</h1>
-                    <p class="text-xs text-slate-400">Modul Simulasi & Perhitungan Diffuser / Grille Standard Excel</p>
+                    <p class="text-xs text-neutral-400">Modul Simulasi & Perhitungan Diffuser / Grille Standard Excel</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="resetForm()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition border border-slate-600 flex items-center gap-2">
+                <button onclick="resetForm()" class="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 text-sm font-medium rounded-lg transition border border-neutral-700 flex items-center gap-2">
                     <i class="fa-solid fa-rotate-right"></i> Reset Data
                 </button>
                 <button onclick="window.print()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg transition shadow-lg shadow-cyan-600/30 flex items-center gap-2">
@@ -43,49 +43,49 @@
     <main class="max-w-7xl mx-auto px-4 py-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow">
         
         <!-- Input & Form Section (Left 6 Cols) -->
-        <section class="lg:col-span-6 bg-slate-800/80 backdrop-blur border border-slate-700/80 rounded-2xl p-6 shadow-xl no-print flex flex-col justify-between">
+        <section class="lg:col-span-6 bg-neutral-950/90 backdrop-blur border border-neutral-800 rounded-2xl p-6 shadow-xl no-print flex flex-col justify-between">
             <div>
-                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-neutral-800">
                     <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                         <i class="fa-solid fa-sliders text-cyan-400"></i> Data Entry Parameter
                     </h2>
-                    <span class="text-xs px-2.5 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800/50 rounded-full font-medium">Real-time Kalkulasi</span>
+                    <span class="text-xs px-2.5 py-1 bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 rounded-full font-medium">Real-time Kalkulasi</span>
                 </div>
 
                 <form id="calcForm" class="space-y-5" onsubmit="return false;">
                     <!-- Nama Pembuat -->
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">1. Nama Pembuat / Engineer</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">1. Nama Pembuat / Engineer</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-user"></i></span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-user"></i></span>
                             <input type="text" id="creatorName" placeholder="Contoh: Ahmad Rizki, S.T." oninput="calculate()" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                         </div>
                     </div>
 
                     <!-- Tanggal Pembuatan -->
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">2. Tanggal Pembuatan</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">2. Tanggal Pembuatan</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-calendar"></i></span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-calendar"></i></span>
                             <input type="date" id="creationDate" oninput="calculate()" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                         </div>
                     </div>
 
                     <!-- Laju Aliran Udara (CFM / CMH) -->
                     <div>
                         <div class="flex justify-between items-center mb-1.5">
-                            <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">3. Laju Aliran Udara (Air Flow)</label>
-                            <select id="flowUnit" onchange="calculate()" class="bg-slate-900 text-xs text-cyan-400 border border-slate-700 rounded px-2 py-0.5 focus:outline-none">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400">3. Laju Aliran Udara (Air Flow)</label>
+                            <select id="flowUnit" onchange="calculate()" class="bg-black text-xs text-cyan-400 border border-neutral-800 rounded px-2 py-0.5 focus:outline-none">
                                 <option value="CFM">CFM (Cubic Feet per Minute)</option>
                                 <option value="CMH" selected>CMH (Cubic Meter per Hour)</option>
                             </select>
                         </div>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-gauge-high"></i></span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-gauge-high"></i></span>
                             <input type="number" id="airFlow" step="any" placeholder="Contoh: 500" oninput="calculate()" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                         </div>
                     </div>
 
@@ -93,30 +93,30 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <div class="flex justify-between items-center mb-1.5">
-                                <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">4. Panjang (Length)</label>
-                                <select id="dimUnitL" onchange="calculate()" class="bg-slate-900 text-xs text-cyan-400 border border-slate-700 rounded px-1.5 py-0.5">
+                                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400">4. Panjang (Length)</label>
+                                <select id="dimUnitL" onchange="calculate()" class="bg-black text-xs text-cyan-400 border border-neutral-800 rounded px-1.5 py-0.5">
                                     <option value="mm" selected>mm</option>
                                     <option value="inch">inch</option>
                                 </select>
                             </div>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-ruler-horizontal"></i></span>
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-ruler-horizontal"></i></span>
                                 <input type="number" id="lengthVal" step="any" placeholder="Misal: 300" oninput="calculate()" 
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                    class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                             </div>
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1.5">
-                                <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">5. Lebar (Width)</label>
-                                <select id="dimUnitW" onchange="calculate()" class="bg-slate-900 text-xs text-cyan-400 border border-slate-700 rounded px-1.5 py-0.5">
+                                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400">5. Lebar (Width)</label>
+                                <select id="dimUnitW" onchange="calculate()" class="bg-black text-xs text-cyan-400 border border-neutral-800 rounded px-1.5 py-0.5">
                                     <option value="mm" selected>mm</option>
                                     <option value="inch">inch</option>
                                 </select>
                             </div>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-ruler-vertical"></i></span>
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-ruler-vertical"></i></span>
                                 <input type="number" id="widthVal" step="any" placeholder="Misal: 300" oninput="calculate()" 
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                    class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                             </div>
                         </div>
                     </div>
@@ -124,33 +124,33 @@
                     <!-- Kecepatan Udara (Velocity) -->
                     <div>
                         <div class="flex justify-between items-center mb-1.5">
-                            <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">6. Kecepatan Udara (Velocity)</label>
-                            <select id="velUnit" onchange="calculate()" class="bg-slate-900 text-xs text-cyan-400 border border-slate-700 rounded px-2 py-0.5">
+                            <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400">6. Kecepatan Udara (Velocity)</label>
+                            <select id="velUnit" onchange="calculate()" class="bg-black text-xs text-cyan-400 border border-neutral-800 rounded px-2 py-0.5">
                                 <option value="FPM">FPM (Feet per Minute)</option>
                                 <option value="MPS" selected>m/s (Meter per Second)</option>
                             </select>
                         </div>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-bolt"></i></span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-bolt"></i></span>
                             <input type="number" id="velocityVal" step="any" placeholder="Contoh: 2.5" oninput="calculate()" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                         </div>
                     </div>
 
                     <!-- Effective Area / Core Free Area Ratio -->
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Rasio Area Efektif Grille/Diffuser (Ak)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">Rasio Area Efektif Grille/Diffuser (Ak)</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-percent"></i></span>
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-neutral-500"><i class="fa-solid fa-percent"></i></span>
                             <input type="number" id="akRatio" value="85" min="10" max="100" step="1" oninput="calculate()" 
-                                class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                                class="w-full bg-black border border-neutral-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-cyan-500 transition">
                         </div>
-                        <p class="text-[11px] text-slate-500 mt-1">Standar pabrikan umumnya berkisar antara 75% - 90% (Ak).</p>
+                        <p class="text-[11px] text-neutral-500 mt-1">Standar pabrikan umumnya berkisar antara 75% - 90% (Ak).</p>
                     </div>
                 </form>
             </div>
 
-            <div class="mt-8 pt-4 border-t border-slate-700 text-xs text-slate-400 flex items-center justify-between">
+            <div class="mt-8 pt-4 border-t border-neutral-800 text-xs text-neutral-400 flex items-center justify-between">
                 <span>Standar Rumus: ASHRAE / Excel Sheet HVAC</span>
                 <span class="text-cyan-400 font-medium">Status: Aktif</span>
             </div>
@@ -160,13 +160,13 @@
         <section class="lg:col-span-6 flex flex-col gap-6">
             
             <!-- Result Card / Report Preview -->
-            <div id="printArea" class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl print-shadow flex flex-col justify-between">
+            <div id="printArea" class="bg-neutral-950/90 border border-neutral-800 rounded-2xl p-6 shadow-xl print-shadow flex flex-col justify-between">
                 <div>
                     <!-- Report Header -->
-                    <div class="flex justify-between items-start border-b border-slate-700 pb-4 mb-5">
+                    <div class="flex justify-between items-start border-b border-neutral-800 pb-4 mb-5">
                         <div>
                             <h3 class="text-base font-bold text-white uppercase tracking-wide">Lembar Hasil Kalkulasi Diffuser / Grille</h3>
-                            <p class="text-xs text-slate-400 mt-0.5">Dokumen Verifikasi Desain Aliran Udara AHU / FCU</p>
+                            <p class="text-xs text-neutral-400 mt-0.5">Dokumen Verifikasi Desain Aliran Udara AHU / FCU</p>
                         </div>
                         <div class="text-right">
                             <span class="text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-md" id="outStatusBadge">Menunggu Input</span>
@@ -174,41 +174,41 @@
                     </div>
 
                     <!-- Metadata Info -->
-                    <div class="grid grid-cols-2 gap-4 mb-5 bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60 text-xs">
+                    <div class="grid grid-cols-2 gap-4 mb-5 bg-black p-3.5 rounded-xl border border-neutral-800 text-xs">
                         <div>
-                            <span class="text-slate-400 block mb-0.5">Pembuat / Engineer:</span>
-                            <span class="font-semibold text-slate-200" id="resCreator">-</span>
+                            <span class="text-neutral-400 block mb-0.5">Pembuat / Engineer:</span>
+                            <span class="font-semibold text-neutral-200" id="resCreator">-</span>
                         </div>
                         <div>
-                            <span class="text-slate-400 block mb-0.5">Tanggal Analisis:</span>
-                            <span class="font-semibold text-slate-200" id="resDate">-</span>
+                            <span class="text-neutral-400 block mb-0.5">Tanggal Analisis:</span>
+                            <span class="font-semibold text-neutral-200" id="resDate">-</span>
                         </div>
                     </div>
 
                     <!-- Summary Table of All Inputs -->
-                    <div class="mb-5 bg-slate-900/90 border border-slate-700/80 rounded-xl p-4">
+                    <div class="mb-5 bg-black border border-neutral-800 rounded-xl p-4">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3 flex items-center gap-2">
                             <i class="fa-solid fa-clipboard-list"></i> Summary Parameter Masukan
                         </h4>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 block text-[10px] uppercase">Laju Aliran (Q)</span>
+                            <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800">
+                                <span class="text-neutral-400 block text-[10px] uppercase">Laju Aliran (Q)</span>
                                 <span class="font-bold text-white text-sm" id="sumFlow">0</span>
                             </div>
-                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 block text-[10px] uppercase">Dimensi (P × L)</span>
+                            <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800">
+                                <span class="text-neutral-400 block text-[10px] uppercase">Dimensi (P × L)</span>
                                 <span class="font-bold text-white text-sm" id="sumDim">0 × 0 mm</span>
                             </div>
-                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 block text-[10px] uppercase">Kecepatan Input</span>
+                            <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800">
+                                <span class="text-neutral-400 block text-[10px] uppercase">Kecepatan Input</span>
                                 <span class="font-bold text-white text-sm" id="sumVel">0</span>
                             </div>
-                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 block text-[10px] uppercase">Rasio Efektif (Ak)</span>
+                            <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800">
+                                <span class="text-neutral-400 block text-[10px] uppercase">Rasio Efektif (Ak)</span>
                                 <span class="font-bold text-white text-sm" id="sumAk">85%</span>
                             </div>
-                            <div class="bg-slate-800/70 p-2.5 rounded-lg border border-slate-700/50 col-span-2">
-                                <span class="text-slate-400 block text-[10px] uppercase">Status Engineer</span>
+                            <div class="bg-neutral-900/60 p-2.5 rounded-lg border border-neutral-800 col-span-2">
+                                <span class="text-neutral-400 block text-[10px] uppercase">Status Engineer</span>
                                 <span class="font-semibold text-emerald-400 text-xs truncate block" id="sumEngineer">Belum diisi</span>
                             </div>
                         </div>
@@ -216,39 +216,39 @@
 
                     <!-- Metrics Grid -->
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                        <div class="bg-slate-900/80 border border-slate-700/80 p-3.5 rounded-xl">
-                            <span class="text-[11px] text-slate-400 block uppercase font-medium">Luas Penampang (A)</span>
-                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resArea">0.000 <span class="text-xs font-normal text-slate-400">m²</span></span>
+                        <div class="bg-black border border-neutral-800 p-3.5 rounded-xl">
+                            <span class="text-[11px] text-neutral-400 block uppercase font-medium">Luas Penampang (A)</span>
+                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resArea">0.000 <span class="text-xs font-normal text-neutral-400">m²</span></span>
                         </div>
-                        <div class="bg-slate-900/80 border border-slate-700/80 p-3.5 rounded-xl">
-                            <span class="text-[11px] text-slate-400 block uppercase font-medium">Area Efektif (Ak)</span>
-                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resEffArea">0.000 <span class="text-xs font-normal text-slate-400">m²</span></span>
+                        <div class="bg-black border border-neutral-800 p-3.5 rounded-xl">
+                            <span class="text-[11px] text-neutral-400 block uppercase font-medium">Area Efektif (Ak)</span>
+                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resEffArea">0.000 <span class="text-xs font-normal text-neutral-400">m²</span></span>
                         </div>
-                        <div class="bg-slate-900/80 border border-slate-700/80 p-3.5 rounded-xl col-span-2 sm:col-span-1">
-                            <span class="text-[11px] text-slate-400 block uppercase font-medium">Kecepatan (Velocity)</span>
-                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resVel">0.00 <span class="text-xs font-normal text-slate-400">m/s</span></span>
+                        <div class="bg-black border border-neutral-800 p-3.5 rounded-xl col-span-2 sm:col-span-1">
+                            <span class="text-[11px] text-neutral-400 block uppercase font-medium">Kecepatan (Velocity)</span>
+                            <span class="text-lg font-bold text-cyan-400 mt-1 block" id="resVel">0.00 <span class="text-xs font-normal text-neutral-400">m/s</span></span>
                         </div>
                     </div>
 
                     <!-- Main Calculated Result Highlights -->
                     <div class="space-y-3 mb-6">
-                        <div class="bg-gradient-to-r from-blue-950/60 to-cyan-950/60 border border-cyan-500/30 p-4 rounded-xl flex items-center justify-between">
+                        <div class="bg-gradient-to-r from-neutral-900 to-cyan-950/40 border border-cyan-500/30 p-4 rounded-xl flex items-center justify-between">
                             <div>
                                 <span class="text-xs text-cyan-300 font-medium block">Total Laju Aliran Terhitung (Q)</span>
                                 <span class="text-2xl font-black text-white mt-0.5 block" id="resFlowCMH">0 <span class="text-sm font-normal text-cyan-400">CMH</span></span>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs text-slate-400 block">Equivalent</span>
-                                <span class="text-lg font-semibold text-slate-200" id="resFlowCFM">0 <span class="text-xs text-slate-400">CFM</span></span>
+                                <span class="text-xs text-neutral-400 block">Equivalent</span>
+                                <span class="text-lg font-semibold text-neutral-200" id="resFlowCFM">0 <span class="text-xs text-neutral-400">CFM</span></span>
                             </div>
                         </div>
 
-                        <div class="bg-slate-900/80 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between">
+                        <div class="bg-black border border-neutral-800 p-4 rounded-xl flex items-center justify-between">
                             <div>
-                                <span class="text-xs text-slate-400 font-medium block">Rekomendasi / Evaluasi Kenyamanan</span>
-                                <span class="text-sm font-semibold text-slate-200 mt-0.5 block" id="resEvaluation">Masukkan data lengkap untuk memulai analisis.</span>
+                                <span class="text-xs text-neutral-400 font-medium block">Rekomendasi / Evaluasi Kenyamanan</span>
+                                <span class="text-sm font-semibold text-neutral-200 mt-0.5 block" id="resEvaluation">Masukkan data lengkap untuk memulai analisis.</span>
                             </div>
-                            <div id="evalIcon" class="text-2xl text-slate-600">
+                            <div id="evalIcon" class="text-2xl text-neutral-600">
                                 <i class="fa-solid fa-circle-question"></i>
                             </div>
                         </div>
@@ -256,30 +256,30 @@
                 </div>
 
                 <!-- Footer Signatures for Print -->
-                <div class="pt-4 border-t border-slate-700/80 text-[11px] text-slate-400 flex justify-between items-end">
+                <div class="pt-4 border-t border-neutral-800 text-[11px] text-neutral-400 flex justify-between items-end">
                     <div>
-                        <p class="font-semibold text-slate-300">Catatan Excel Standar:</p>
+                        <p class="font-semibold text-neutral-300">Catatan Excel Standar:</p>
                         <p>Q = Ak × Velocity × 3600 (CMH)</p>
                     </div>
                     <div class="text-right hidden print:block">
                         <p class="mb-8">Disetujui Oleh,</p>
-                        <p class="font-bold text-slate-200 border-t border-slate-400 pt-1 px-4">( Supervisor / Engineer )</p>
+                        <p class="font-bold text-neutral-200 border-t border-neutral-400 pt-1 px-4">( Supervisor / Engineer )</p>
                     </div>
                 </div>
             </div>
 
             <!-- Real-Time Airflow Animation Canvas Card -->
-            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center relative overflow-hidden no-print">
+            <div class="bg-neutral-950/90 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center relative overflow-hidden no-print">
                 <div class="w-full flex justify-between items-center mb-3">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-2">
                         <i class="fa-solid fa-video text-cyan-400"></i> Simulasi Animasi Aliran Udara Real-Time
                     </h4>
-                    <span class="text-[10px] bg-slate-900 text-slate-400 px-2 py-0.5 rounded border border-slate-700" id="animSpeedLabel">Kecepatan: Normal</span>
+                    <span class="text-[10px] bg-black text-neutral-400 px-2 py-0.5 rounded border border-neutral-800" id="animSpeedLabel">Kecepatan: Normal</span>
                 </div>
-                <div class="w-full h-40 bg-slate-900 rounded-xl border border-slate-700/60 relative overflow-hidden flex items-center justify-center">
+                <div class="w-full h-40 bg-black rounded-xl border border-neutral-800 relative overflow-hidden flex items-center justify-center">
                     <canvas id="flowCanvas" class="w-full h-full absolute inset-0"></canvas>
                     <div id="canvasOverlay" class="absolute z-10 text-center pointer-events-none">
-                        <p class="text-xs font-semibold text-slate-400 bg-slate-950/70 px-3 py-1 rounded-full border border-slate-800">Visualisasi Diffuser Slot / Grille Blade</p>
+                        <p class="text-xs font-semibold text-neutral-400 bg-neutral-950/80 px-3 py-1 rounded-full border border-neutral-800">Visualisasi Diffuser Slot / Grille Blade</p>
                     </div>
                 </div>
             </div>
@@ -287,12 +287,11 @@
         </section>
     </main>
 
-    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-500 no-print">
+    <footer class="bg-neutral-950 border-t border-neutral-800 py-4 text-center text-xs text-neutral-500 no-print">
         <p>&copy; 2026 HVAC Engineering Suite. Sesuai Formula Standard Perhitungan Excel.</p>
     </footer>
 
     <script>
-        // Set default date to today
         document.getElementById('creationDate').valueAsDate = new Date();
 
         function resetForm() {
@@ -331,7 +330,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Draw schematic diffuser grille slot at left
-            ctx.fillStyle = '#334155';
+            ctx.fillStyle = '#171717';
             ctx.fillRect(10, canvas.height / 2 - 35, 12, 70);
             ctx.fillStyle = '#06b6d4';
             ctx.fillRect(12, canvas.height / 2 - 30, 8, 60);
@@ -421,17 +420,17 @@
             document.getElementById('animSpeedLabel').innerText = `Kecepatan: ${velocityMPS.toFixed(2)} m/s`;
 
             // Display Results
-            document.getElementById('resArea').innerHTML = `${areaA.toFixed(4)} <span class="text-xs font-normal text-slate-400">m²</span>`;
-            document.getElementById('resEffArea').innerHTML = `${effAreaAk.toFixed(4)} <span class="text-xs font-normal text-slate-400">m²</span>`;
-            document.getElementById('resVel').innerHTML = `${velocityMPS.toFixed(2)} <span class="text-xs font-normal text-slate-400">m/s</span>`;
+            document.getElementById('resArea').innerHTML = `${areaA.toFixed(4)} <span class="text-xs font-normal text-neutral-400">m²</span>`;
+            document.getElementById('resEffArea').innerHTML = `${effAreaAk.toFixed(4)} <span class="text-xs font-normal text-neutral-400">m²</span>`;
+            document.getElementById('resVel').innerHTML = `${velocityMPS.toFixed(2)} <span class="text-xs font-normal text-neutral-400">m/s</span>`;
             document.getElementById('resFlowCMH').innerHTML = `${flowCMH.toLocaleString('id-ID', {maximumFractionDigits: 1})} <span class="text-sm font-normal text-cyan-400">CMH</span>`;
-            document.getElementById('resFlowCFM').innerHTML = `${flowCFM.toLocaleString('id-ID', {maximumFractionDigits: 1})} <span class="text-xs text-slate-400">CFM</span>`;
+            document.getElementById('resFlowCFM').innerHTML = `${flowCFM.toLocaleString('id-ID', {maximumFractionDigits: 1})} <span class="text-xs text-neutral-400">CFM</span>`;
 
             // Evaluation & Recommendation based on ASHRAE standard for terminal velocity
             let evalText = "Masukkan parameter lengkap untuk melihat analisis kenyamanan.";
             let badgeText = "Menunggu Input";
-            let badgeClass = "bg-slate-500/10 text-slate-400 border-slate-500/30";
-            let evalIconHTML = '<i class="fa-solid fa-circle-question text-slate-500"></i>';
+            let badgeClass = "bg-neutral-800 text-neutral-400 border-neutral-700";
+            let evalIconHTML = '<i class="fa-solid fa-circle-question text-neutral-500"></i>';
 
             if (areaA > 0 && (airFlowInput > 0 || velocityInput > 0)) {
                 if (velocityMPS >= 1.5 && velocityMPS <= 3.0) {
